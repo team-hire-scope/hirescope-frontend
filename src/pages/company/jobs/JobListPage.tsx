@@ -8,7 +8,7 @@ const jobs = [
 
 const JobListPage = () => {
 	return (
-		<section className='space-y-6'>
+		<section className='w-full space-y-6'>
 			<div className='flex items-center justify-between'>
 				<div>
 					<h2 className='text-2xl font-semibold text-slate-900'>채용 공고 목록</h2>
@@ -16,7 +16,7 @@ const JobListPage = () => {
 				</div>
 				<Button>공고 추가</Button>
 			</div>
-			<div className='grid gap-4 md:grid-cols-2'>
+			<div className='grid w-full grid-cols-2 gap-4'>
 				{jobs.map(job => (
 					<article key={job.id} className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm'>
 						<div className='mb-2 flex items-center justify-between'>

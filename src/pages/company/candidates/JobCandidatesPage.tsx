@@ -11,18 +11,18 @@ const JobCandidatesPage = () => {
 	const { jobId } = useParams()
 
 	return (
-		<section className='space-y-6'>
+		<section className='w-full space-y-6'>
 			<div>
 				<h2 className='text-2xl font-semibold text-slate-900'>지원자 관리 대시보드</h2>
 				<p className='mt-1 text-sm text-slate-600'>공고 ID: {jobId}</p>
 			</div>
-			<div className='flex max-w-xs gap-3'>
+			<div className='flex w-full max-w-xs gap-3'>
 				<Select defaultValue='score-desc' aria-label='정렬'>
 					<option value='score-desc'>점수 높은 순</option>
 					<option value='latest'>최신순</option>
 				</Select>
 			</div>
-			<div className='overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm'>
+			<div className='w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm'>
 				<table className='min-w-full text-left text-sm'>
 					<thead className='bg-slate-50 text-slate-600'>
 						<tr>
