@@ -5,6 +5,7 @@ import CandidateDetailPage from '../../pages/company/candidates/CandidateDetailP
 import JobCandidatesPage from '../../pages/company/candidates/JobCandidatesPage'
 import JobCreatePage from '../../pages/company/jobs/JobCreatePage'
 import JobListPage from '../../pages/company/jobs/JobListPage'
+import LandingPage from '../../pages/company/landing/LandingPage'
 import CompanySettingsPage from '../../pages/company/settings/CompanySettingsPage'
 
 export const companyRouter = createBrowserRouter([
@@ -16,6 +17,10 @@ export const companyRouter = createBrowserRouter([
 		path: '/',
 		element: <CompanyLayout />,
 		children: [
+			{
+				index: true,
+				element: <LandingPage />,
+			},
 			{
 				path: 'settings/company',
 				element: <CompanySettingsPage />,

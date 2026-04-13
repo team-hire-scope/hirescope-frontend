@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+@theme {
+	--color-hs-deep-green: #2f6b3f;
+	--color-hs-green: #7fb77e;
+	--color-hs-yellow: #f7c85c;
+	--color-hs-cream: #fff6c0;
+}
+
 button {
 	cursor: pointer;
 }

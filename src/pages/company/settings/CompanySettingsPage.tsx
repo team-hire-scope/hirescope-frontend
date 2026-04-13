@@ -6,10 +6,10 @@ const CompanySettingsPage = () => {
 	return (
 		<section className='w-full space-y-6'>
 			<div>
-				<h2 className='text-2xl font-semibold text-slate-900'>기업 정보 설정</h2>
-				<p className='mt-1 text-sm text-slate-600'>회사 정보와 산업군을 입력해 기본 프로필을 완성하세요.</p>
+				<h2 className='text-2xl font-semibold text-hs-deep-green'>기업 정보 설정</h2>
+				<p className='mt-1 text-sm text-black'>회사 정보와 산업군을 입력해 기본 프로필을 완성하세요.</p>
 			</div>
-			<div className='w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+			<div className='w-full rounded-xl border border-hs-cream bg-white p-6 shadow-sm'>
 				<form className='space-y-4'>
 					<Input id='company-name' label='회사명' placeholder='주식회사 하이어스코프' />
 					<Input id='company-logo' label='로고 URL' placeholder='https://example.com/logo.png' />

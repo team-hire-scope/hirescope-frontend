@@ -6,10 +6,10 @@ const JobCreatePage = () => {
 	return (
 		<section className='w-full space-y-6'>
 			<div>
-				<h2 className='text-2xl font-semibold text-slate-900'>직무 공고 등록</h2>
-				<p className='mt-1 text-sm text-slate-600'>채용 공고와 JD를 등록해 AI 분석을 준비합니다.</p>
+				<h2 className='text-2xl font-semibold text-hs-deep-green'>직무 공고 등록</h2>
+				<p className='mt-1 text-sm text-black'>채용 공고와 JD를 등록해 AI 분석을 준비합니다.</p>
 			</div>
-			<div className='w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm'>
+			<div className='w-full rounded-xl border border-hs-cream bg-white p-6 shadow-sm'>
 				<form className='space-y-4'>
 					<Input id='job-title' label='직무명' placeholder='예: 프론트엔드 개발자' />
 					<Select id='employment-type' label='고용 형태' defaultValue=''>
@@ -21,13 +21,13 @@ const JobCreatePage = () => {
 						<option value='intern'>인턴</option>
 					</Select>
 					<div className='space-y-1.5'>
-						<label htmlFor='jd' className='text-sm font-medium text-slate-700'>
+						<label htmlFor='jd' className='text-sm font-medium text-hs-deep-green'>
 							JD 내용
 						</label>
 						<textarea
 							id='jd'
 							rows={8}
-							className='w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+							className='w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-black shadow-sm outline-none transition placeholder:text-black/50 focus:border-hs-yellow focus:ring-2 focus:ring-hs-yellow/40'
 							placeholder='주요 업무, 자격 요건, 우대 사항을 입력하세요.'
 						/>
 					</div>
