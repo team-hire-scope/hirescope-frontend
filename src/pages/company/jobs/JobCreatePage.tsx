@@ -1,6 +1,6 @@
+import { Link } from 'react-router'
 import { Button } from '../../../components/company/common/Button'
-import { Input } from '../../../components/company/common/Input'
-import { Select } from '../../../components/company/common/Select'
+import { JDForm } from '../../../components/company/job/JDForm'
 
 const JobCreatePage = () => {
 	return (
@@ -10,29 +10,15 @@ const JobCreatePage = () => {
 				<p className='mt-1 text-sm text-black'>채용 공고와 JD를 등록해 AI 분석을 준비합니다.</p>
 			</div>
 			<div className='w-full rounded-xl border border-hs-cream bg-white p-6 shadow-sm'>
-				<form className='space-y-4'>
-					<Input id='job-title' label='직무명' placeholder='예: 프론트엔드 개발자' />
-					<Select id='employment-type' label='고용 형태' defaultValue=''>
-						<option value='' disabled>
-							고용 형태를 선택하세요
-						</option>
-						<option value='full-time'>정규직</option>
-						<option value='contract'>계약직</option>
-						<option value='intern'>인턴</option>
-					</Select>
-					<div className='space-y-1.5'>
-						<label htmlFor='jd' className='text-sm font-medium text-hs-deep-green'>
-							JD 내용
-						</label>
-						<textarea
-							id='jd'
-							rows={8}
-							className='w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-black shadow-sm outline-none transition placeholder:text-black/50 focus:border-hs-yellow focus:ring-2 focus:ring-hs-yellow/40'
-							placeholder='주요 업무, 자격 요건, 우대 사항을 입력하세요.'
-						/>
-					</div>
-					<Button>JD 저장</Button>
-				</form>
+				<JDForm />
+				<div className='mt-4 flex items-center justify-between border-t border-hs-cream pt-4'>
+					<Link to='/settings/company' className='text-sm font-medium text-hs-deep-green'>
+						이전 단계
+					</Link>
+					<Link to='/jobs'>
+						<Button>대시보드 보기</Button>
+					</Link>
+				</div>
 			</div>
 		</section>
 	)
