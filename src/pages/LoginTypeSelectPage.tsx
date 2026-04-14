@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { Button } from '../../../components/company/common/Button'
+import { Button } from '../components/company/common/Button'
 
 const LoginTypeSelectPage = () => {
 	return (

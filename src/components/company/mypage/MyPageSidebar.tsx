@@ -2,8 +2,8 @@ import { NavLink } from 'react-router'
 import { cn } from '../../../utils/cn'
 
 const myPageMenus = [
-	{ to: '/mypage/company', label: '회사 정보' },
-	{ to: '/mypage/jobs', label: '내 공고 관리' },
+	{ to: '/com-mypage/company', label: '회사 정보' },
+	{ to: '/com-mypage/jobs', label: '내 공고 관리' },
 ]
 
 export const MyPageSidebar = () => {

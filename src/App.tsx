@@ -1,7 +1,7 @@
 import { RouterProvider } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { companyRouter } from './routes/company/companyRouter'
+import { appRouter } from './routes/router'
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -15,7 +15,7 @@ const queryClient = new QueryClient({
 function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={companyRouter} />
+			<RouterProvider router={appRouter} />
 			{import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
 		</QueryClientProvider>
 	)

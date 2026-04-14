@@ -14,7 +14,6 @@ const AuthPage = () => {
 		event.preventDefault()
 		if (!companyName.trim() || !password.trim()) return
 		window.localStorage.setItem(COMPANY_AUTH_KEY, JSON.stringify(companyName.trim()))
-		window.dispatchEvent(new Event('company-auth-updated'))
 		navigate('/settings/company')
 	}
 

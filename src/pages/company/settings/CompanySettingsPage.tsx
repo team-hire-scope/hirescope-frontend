@@ -1,13 +1,11 @@
 import { Link } from 'react-router'
 import { Button } from '../../../components/company/common/Button'
 import { Input } from '../../../components/company/common/Input'
-import { OnboardingStep } from '../../../components/company/onboarding/OnboardingStep'
 import { Select } from '../../../components/company/common/Select'
 
 const CompanySettingsPage = () => {
 	return (
 		<section className='w-full space-y-6'>
-			<OnboardingStep currentStep={2} />
 			<div>
 				<h2 className='text-2xl font-semibold text-hs-deep-green'>기업 정보 설정</h2>
 				<p className='mt-1 text-sm text-black'>회사 정보와 산업군을 입력해 기본 프로필을 완성하세요.</p>
