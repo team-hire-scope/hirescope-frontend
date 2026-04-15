@@ -74,15 +74,15 @@ export const EducationSection = ({ register, control, fields, onAdd, onRemove }:
 									<div className='grid grid-cols-2 gap-4'>
 										<Input
 											label='입학일'
-											type='month'
+											placeholder='예: 2018.03'
 											{...register(`educations.${index}.startDate` as const)}
 										/>
 										<Input
 											label='졸업일'
-											type='month'
+											placeholder='예: 2022.02'
 											{...register(`educations.${index}.endDate` as const)}
 										/>
-									</div>
+									</div>{' '}
 								</div>
 							)}
 

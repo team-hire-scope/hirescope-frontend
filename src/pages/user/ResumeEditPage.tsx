@@ -2,10 +2,35 @@ import { useResumeForm } from '@/hooks/user/resume-edit/useResumeForm'
 import { ResumeSidebar } from '@/components/user/resume-edit/ResumeSidebar'
 import { BasicInfoSection } from '@/components/user/resume-edit/BasicInfoSection'
 import { EducationSection } from '@/components/user/resume-edit/EducationSection'
-import { ResumeSectionCard } from '@/components/common/ResumeSectionCard'
+import { CareerSection } from '@/components/user/resume-edit/CareerSection'
+import { SkillSection } from '@/components/user/resume-edit/SkillSection'
+import { ProjectSection } from '@/components/user/resume-edit/ProjectSection'
+import { CertificationSection } from '@/components/user/resume-edit/CertificationSection'
 
 export default function ResumeEditPage() {
-	const { register, control, handleSubmit, errors, onSubmit, eduFields, appendEdu, removeEdu, navigate } = useResumeForm()
+	const {
+		register,
+		control,
+		handleSubmit,
+		errors,
+		onSubmit,
+		eduFields,
+		appendEdu,
+		removeEdu,
+		careerFields,
+		appendCareer,
+		removeCareer,
+		skillFields,
+		appendSkill,
+		removeSkill,
+		projectFields,
+		appendProject,
+		removeProject,
+		certFields,
+		appendCert,
+		removeCert,
+		navigate,
+	} = useResumeForm()
 
 	return (
 		<div className='min-h-screen bg-[#faf9f6] pb-20'>
@@ -29,35 +54,63 @@ export default function ResumeEditPage() {
 								onRemove={removeEdu}
 							/>
 
-							{/* 나머지 섹션들 (준비 중) */}
-							<div id='career' className='scroll-mt-32 opacity-60 grayscale-[0.5]'>
-								<ResumeSectionCard title='경력'>
-									<p className='text-base font-bold text-slate-400 text-center py-16 border-2 border-dashed border-hs-yellow/20 rounded-[32px]'>
-										준비 중인 섹션입니다.
-									</p>
-								</ResumeSectionCard>
-							</div>
-							<div id='skills' className='scroll-mt-32 opacity-60 grayscale-[0.5]'>
-								<ResumeSectionCard title='기술 스택'>
-									<p className='text-base font-bold text-slate-400 text-center py-16 border-2 border-dashed border-hs-yellow/20 rounded-[32px]'>
-										준비 중인 섹션입니다.
-									</p>
-								</ResumeSectionCard>
-							</div>
-							<div id='projects' className='scroll-mt-32 opacity-60 grayscale-[0.5]'>
-								<ResumeSectionCard title='프로젝트'>
-									<p className='text-base font-bold text-slate-400 text-center py-16 border-2 border-dashed border-hs-yellow/20 rounded-[32px]'>
-										준비 중인 섹션입니다.
-									</p>
-								</ResumeSectionCard>
-							</div>
-							<div id='certifications' className='scroll-mt-32 opacity-60 grayscale-[0.5]'>
-								<ResumeSectionCard title='자격증'>
-									<p className='text-base font-bold text-slate-400 text-center py-16 border-2 border-dashed border-hs-yellow/20 rounded-[32px]'>
-										준비 중인 섹션입니다.
-									</p>
-								</ResumeSectionCard>
-							</div>
+							{/* 경력 섹션 */}
+							<CareerSection
+								register={register}
+								control={control}
+								fields={careerFields}
+								onAdd={() =>
+									appendCareer({
+										companyName: '',
+										jobTitle: '',
+										position: '',
+										startDate: '',
+										jobDescription: '',
+										quantitativeResults: '',
+									})
+								}
+								onRemove={removeCareer}
+							/>
+
+							{/* 기술 스택 섹션 */}
+							<SkillSection
+								register={register}
+								control={control}
+								fields={skillFields}
+								onAdd={initialData =>
+									appendSkill({
+										skillName: '',
+										proficiency: 'mid',
+										durationMonths: 24,
+										...initialData,
+									})
+								}
+								onRemove={removeSkill}
+							/>
+
+							{/* 프로젝트 섹션 */}
+							<ProjectSection
+								register={register}
+								fields={projectFields}
+								onAdd={() =>
+									appendProject({
+										projectName: '',
+										role: '',
+										duration: '',
+										techStack: '',
+										achievementsDescription: '',
+									})
+								}
+								onRemove={removeProject}
+							/>
+
+							{/* 자격증 섹션 */}
+							<CertificationSection
+								register={register}
+								fields={certFields}
+								onAdd={() => appendCert({ certificationName: '', issuer: '', acquisitionDate: '' })}
+								onRemove={removeCert}
+							/>
 						</form>
 					</main>
 				</div>
