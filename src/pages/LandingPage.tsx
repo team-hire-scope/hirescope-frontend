@@ -1,6 +1,10 @@
-import { Link } from 'react-router'
+import { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { Badge } from '../components/common/Badge'
 import { Button } from '../components/common/Button'
+
+const COMPANY_AUTH_KEY = 'companyAuthName'
+const USER_AUTH_KEY = 'userAuthName'
 
 const strengths = [
 	{
@@ -18,6 +22,19 @@ const strengths = [
 ]
 
 const LandingPage = () => {
+	const navigate = useNavigate()
+
+	useEffect(() => {
+		const companyAuth = window.localStorage.getItem(COMPANY_AUTH_KEY)
+		const userAuth = window.localStorage.getItem(USER_AUTH_KEY)
+
+		if (companyAuth) {
+			navigate('/settings/company', { replace: true })
+		} else if (userAuth) {
+			navigate('/applicant-main', { replace: true })
+		}
+	}, [navigate])
+
 	return (
 		<section className='w-full space-y-8'>
 			<div className='rounded-2xl border border-hs-cream bg-white p-10 shadow-sm'>

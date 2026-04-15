@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router'
 import { Layout } from '../components/layout/Layout'
 import { MyPageLayout } from '../components/company/mypage/MyPageLayout'
 import CompanyAuthPage from '../pages/company/auth/AuthPage'
+import UserAuthPage from '../pages/user/auth/UserAuthPage'
 import LoginTypeSelectPage from '../pages/LoginTypeSelectPage'
 import CandidateDetailPage from '../pages/company/candidates/CandidateDetailPage'
 import JobCandidatesPage from '../pages/company/candidates/JobCandidatesPage'
@@ -12,11 +13,20 @@ import MyCompanyInfoPage from '../pages/company/mypage/MyCompanyInfoPage'
 import MyJobApplicantsDashboardPage from '../pages/company/mypage/MyJobApplicantsDashboardPage'
 import MyJobPostsPage from '../pages/company/mypage/MyJobPostsPage'
 import CompanySettingsPage from '../pages/company/settings/CompanySettingsPage'
+import ResumeListPage from '../pages/user/ResumeListPage'
+import ResumeEditPage from '../pages/user/ResumeEditPage'
+import AnalysisRequestPage from '../pages/user/AnalysisRequestPage'
+import AnalysisResultPage from '../pages/user/AnalysisResultPage'
+import ApplicantMainPage from '../pages/user/ApplicantMainPage'
 
 const AuthRoutes = [
 	{
 		path: '/auth',
 		element: <CompanyAuthPage />,
+	},
+	{
+		path: '/auth/user',
+		element: <UserAuthPage />,
 	},
 	{
 		path: '/auth/select',
@@ -33,8 +43,32 @@ const sharedShellChildren = [
 
 const applicantAppChildren = [
 	{
+		path: 'applicant-main',
+		element: <ApplicantMainPage />,
+	},
+	{
 		path: 'jobs',
 		element: <JobListPage />,
+	},
+	{
+		path: 'resumes',
+		element: <ResumeListPage />,
+	},
+	{
+		path: 'resumes/new',
+		element: <ResumeEditPage />,
+	},
+	{
+		path: 'resumes/:resumeId/edit',
+		element: <ResumeEditPage />,
+	},
+	{
+		path: 'analysis/request',
+		element: <AnalysisRequestPage />,
+	},
+	{
+		path: 'analysis/result/:analysisId',
+		element: <AnalysisResultPage />,
 	},
 ]
 

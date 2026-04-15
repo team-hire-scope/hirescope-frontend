@@ -11,9 +11,11 @@ const LoginTypeSelectPage = () => {
 					<div className='rounded-lg border border-hs-cream bg-white p-4'>
 						<h3 className='text-base font-semibold text-black'>구직자 로그인</h3>
 						<p className='mt-1 text-sm text-black'>개인 계정으로 공고 탐색 및 지원</p>
-						<Button className='mt-4 w-full' variant='secondary' disabled>
-							준비중
-						</Button>
+						<Link to='/auth/user'>
+							<Button className='mt-4 w-full' variant='secondary'>
+								지원자 로그인
+							</Button>
+						</Link>
 					</div>
 					<div className='rounded-lg border border-hs-cream bg-white p-4'>
 						<h3 className='text-base font-semibold text-black'>회사 로그인</h3>
