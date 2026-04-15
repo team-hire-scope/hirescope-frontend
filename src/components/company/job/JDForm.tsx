@@ -2,30 +2,38 @@ import { Button } from '../../common/Button'
 import { Input } from '../../common/Input'
 import { Select } from '../../common/Select'
 
+const EMPLOYMENT_OPTIONS = [
+	{ value: 'full-time', label: '정규직' },
+	{ value: 'contract', label: '계약직' },
+	{ value: 'intern', label: '인턴' },
+]
+
+const EXPERIENCE_OPTIONS = [
+	{ value: 'junior', label: '주니어(1~3년)' },
+	{ value: 'mid', label: '미들(4~7년)' },
+	{ value: 'senior', label: '시니어(8년 이상)' },
+]
+
 export const JDForm = () => {
 	return (
 		<form className='space-y-5'>
 			<div className='grid grid-cols-2 gap-4'>
 				<Input id='job-title' label='직무명' placeholder='예: 프론트엔드 개발자' />
-				<Select id='employment-type' label='고용 형태' defaultValue=''>
-					<option value='' disabled>
-						고용 형태를 선택하세요
-					</option>
-					<option value='full-time'>정규직</option>
-					<option value='contract'>계약직</option>
-					<option value='intern'>인턴</option>
-				</Select>
+				<Select
+					id='employment-type'
+					label='고용 형태'
+					placeholder='고용 형태를 선택하세요'
+					options={EMPLOYMENT_OPTIONS}
+				/>
 			</div>
 
 			<div className='grid grid-cols-2 gap-4'>
-				<Select id='experience-level' label='경력 레벨' defaultValue=''>
-					<option value='' disabled>
-						경력 레벨을 선택하세요
-					</option>
-					<option value='junior'>주니어(1~3년)</option>
-					<option value='mid'>미들(4~7년)</option>
-					<option value='senior'>시니어(8년 이상)</option>
-				</Select>
+				<Select
+					id='experience-level'
+					label='경력 레벨'
+					placeholder='경력 레벨을 선택하세요'
+					options={EXPERIENCE_OPTIONS}
+				/>
 				<Input id='hiring-count' label='채용 인원' type='number' placeholder='예: 2' min={1} />
 			</div>
 

@@ -8,6 +8,7 @@ interface SelectOption {
 }
 
 interface SelectProps {
+	id?: string
 	label?: string
 	error?: string
 	options: SelectOption[]

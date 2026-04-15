@@ -1,4 +1,5 @@
-import { type UseFormRegister, type FieldArrayWithId, type Control, useWatch, Controller } from 'react-hook-form'
+import { useWatch, Controller } from 'react-hook-form'
+import type { UseFormRegister, Control, FieldArrayWithId } from 'react-hook-form'
 import { Trash2, Plus } from 'lucide-react'
 import { Input } from '@/components/common/Input'
 import { Select } from '@/components/common/Select'
