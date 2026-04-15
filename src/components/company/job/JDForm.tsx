@@ -1,6 +1,7 @@
 import { Button } from '../../common/Button'
 import { Input } from '../../common/Input'
 import { Select } from '../../common/Select'
+import { Textarea } from '../../common/Textarea'
 
 const EMPLOYMENT_OPTIONS = [
 	{ value: 'full-time', label: '정규직' },
@@ -37,29 +38,13 @@ export const JDForm = () => {
 				<Input id='hiring-count' label='채용 인원' type='number' placeholder='예: 2' min={1} />
 			</div>
 
-			<div className='space-y-1.5'>
-				<label htmlFor='jd' className='text-sm font-medium text-hs-deep-green'>
-					JD 내용
-				</label>
-				<textarea
-					id='jd'
-					rows={7}
-					className='w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-black shadow-sm outline-none transition placeholder:text-black/50 focus:border-hs-yellow focus:ring-2 focus:ring-hs-yellow/40'
-					placeholder='주요 업무, 자격 요건, 우대 사항을 입력하세요.'
-				/>
-			</div>
+			<Textarea id='jd' label='JD 내용' placeholder='주요 업무, 자격 요건, 우대 사항을 입력하세요.' />
 
-			<div className='space-y-1.5'>
-				<label htmlFor='screening-criteria' className='text-sm font-medium text-hs-deep-green'>
-					핵심 평가 기준
-				</label>
-				<textarea
-					id='screening-criteria'
-					rows={4}
-					className='w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-black shadow-sm outline-none transition placeholder:text-black/50 focus:border-hs-yellow focus:ring-2 focus:ring-hs-yellow/40'
-					placeholder='예: 문제 해결력, 협업 커뮤니케이션, React 실무 경험'
-				/>
-			</div>
+			<Textarea
+				id='screening-criteria'
+				label='핵심 평가 기준'
+				placeholder='예: 문제 해결력, 협업 커뮤니케이션, React 실무 경험'
+			/>
 
 			<div className='space-y-3 rounded-lg border border-hs-cream bg-hs-cream/30 p-4'>
 				<h4 className='text-sm font-semibold text-hs-deep-green'>5대 평가 기준 가중치 설정(%)</h4>
