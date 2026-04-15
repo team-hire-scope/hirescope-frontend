@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router'
-import { Button } from '../../components/common/Button'
-import { ResumeSectionCard } from '../../components/common/ResumeSectionCard'
+import { Button } from '@/components/common/Button'
+import { ResumeSectionCard } from '@/components/common/ResumeSectionCard'
 
 export default function ApplicantMainPage() {
 	const navigate = useNavigate()
