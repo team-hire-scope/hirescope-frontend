@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useParams } from 'react-router'
 import { FilterBar } from '../../../components/company/candidate/FilterBar'
 import { SortDropdown } from '../../../components/company/candidate/SortDropdown'
-import { Badge } from '../../../components/company/common/Badge'
+import { Badge } from '../../../components/common/Badge'
 
 interface WeightedCandidate {
 	id: string

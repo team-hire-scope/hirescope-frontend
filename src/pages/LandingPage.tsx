@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
-import { Badge } from '../components/company/common/Badge'
-import { Button } from '../components/company/common/Button'
+import { Badge } from '../components/common/Badge'
+import { Button } from '../components/common/Button'
 
 const strengths = [
 	{

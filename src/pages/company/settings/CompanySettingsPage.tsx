@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
-import { Button } from '../../../components/company/common/Button'
-import { Input } from '../../../components/company/common/Input'
-import { Select } from '../../../components/company/common/Select'
+import { Button } from '../../../components/common/Button'
+import { Input } from '../../../components/common/Input'
+import { Select } from '../../../components/common/Select'
 
 const CompanySettingsPage = () => {
 	return (

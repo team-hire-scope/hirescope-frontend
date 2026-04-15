@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
-import { Button } from '../../../components/company/common/Button'
-import { Badge } from '../../../components/company/common/Badge'
+import { Button } from '../../../components/common/Button'
+import { Badge } from '../../../components/common/Badge'
 
 const myJobs = [
 	{ id: '1', title: '프론트엔드 개발자', status: '진행중', applicants: 42 },

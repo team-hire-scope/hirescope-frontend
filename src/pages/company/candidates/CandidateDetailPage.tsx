@@ -1,5 +1,5 @@
 import { useParams } from 'react-router'
-import { Badge } from '../../../components/company/common/Badge'
+import { Badge } from '../../../components/common/Badge'
 
 const CandidateDetailPage = () => {
 	const { candidateId } = useParams()

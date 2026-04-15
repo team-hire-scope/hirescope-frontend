@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Button } from '../../../components/company/common/Button'
-import { Input } from '../../../components/company/common/Input'
+import { Button } from '../../../components/common/Button'
+import { Input } from '../../../components/common/Input'
 
 const COMPANY_AUTH_KEY = 'companyAuthName'
 

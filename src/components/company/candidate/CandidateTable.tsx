@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { Badge } from '../common/Badge'
+import { Badge } from '../../common/Badge'
 
 export interface CandidateRow {
 	id: string

@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { Button } from '../../../components/company/common/Button'
+import { Button } from '../../../components/common/Button'
 import { JDForm } from '../../../components/company/job/JDForm'
 
 const JobCreatePage = () => {

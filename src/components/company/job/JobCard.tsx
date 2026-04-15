@@ -1,4 +1,4 @@
-import { Badge } from '../common/Badge'
+import { Badge } from '@/components/common/Badge'
 
 interface JobCardProps {
 	title: string

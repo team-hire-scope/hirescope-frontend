@@ -1,5 +1,5 @@
 import type { SelectHTMLAttributes } from 'react'
-import { cn } from '../../../utils/cn'
+import { cn } from '@/utils/cn'
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 	label?: string
@@ -17,7 +17,7 @@ export const Select = ({ className, label, error, id, children, ...props }: Sele
 			<select
 				id={id}
 				className={cn(
-					'h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-black shadow-sm outline-none transition focus:border-hs-yellow focus:ring-2 focus:ring-hs-yellow/40',
+					'h-10 w-full rounded-md border border-hs-yellow bg-white px-3 text-sm text-black shadow-sm outline-none transition focus:ring-2 focus:ring-hs-yellow/40',
 					error && 'border-rose-400 focus:border-rose-500 focus:ring-rose-200',
 					className
 				)}

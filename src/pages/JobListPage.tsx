@@ -1,4 +1,4 @@
-import { Button } from '../components/company/common/Button'
+import { Button } from '../components/common/Button'
 import { JobCard } from '../components/company/job/JobCard'
 
 const jobs = [
