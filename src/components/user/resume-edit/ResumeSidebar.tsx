@@ -14,9 +14,10 @@ const SECTIONS = [
 
 interface ResumeSidebarProps {
 	onCancel: () => void
+	isPending?: boolean
 }
 
-export const ResumeSidebar = ({ onCancel }: ResumeSidebarProps) => {
+export const ResumeSidebar = ({ onCancel, isPending = false }: ResumeSidebarProps) => {
 	const [activeSection, setActiveSection] = useState('basic')
 
 	useEffect(() => {
@@ -102,6 +103,7 @@ export const ResumeSidebar = ({ onCancel }: ResumeSidebarProps) => {
 					<Button
 						type='submit'
 						form='resume-form'
+						disabled={isPending}
 						className='w-full py-7 text-lg font-black shadow-lg shadow-hs-yellow/20 gap-2'
 					>
 						<Save size={22} /> 저장하기

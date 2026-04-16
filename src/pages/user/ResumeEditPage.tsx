@@ -1,3 +1,4 @@
+import { useNavigate, useParams, useBlocker } from 'react-router'
 import { useResumeForm } from '@/hooks/user/resume-edit/useResumeForm'
 import { ResumeSidebar } from '@/components/user/resume-edit/ResumeSidebar'
 import { BasicInfoSection } from '@/components/user/resume-edit/BasicInfoSection'
@@ -6,13 +7,20 @@ import { CareerSection } from '@/components/user/resume-edit/CareerSection'
 import { SkillSection } from '@/components/user/resume-edit/SkillSection'
 import { ProjectSection } from '@/components/user/resume-edit/ProjectSection'
 import { CertificationSection } from '@/components/user/resume-edit/CertificationSection'
+import { Button } from '@/components/common/Button'
 
 export default function ResumeEditPage() {
+	const navigate = useNavigate()
+	const { resumeId } = useParams<{ resumeId: string }>()
+
 	const {
 		register,
 		control,
 		handleSubmit,
 		errors,
+		isPending,
+		isDirty,
+		isLoadingDetail,
 		onSubmit,
 		eduFields,
 		appendEdu,
@@ -29,92 +37,118 @@ export default function ResumeEditPage() {
 		certFields,
 		appendCert,
 		removeCert,
-		navigate,
-	} = useResumeForm()
+	} = useResumeForm(resumeId)
+
+	// 수정 사항이 있고 저장 중이 아닐 때만 이탈 방지
+	const blocker = useBlocker(isDirty && !isPending)
 
 	return (
 		<div className='min-h-screen bg-[#faf9f6] pb-20'>
 			<div className='container mx-auto max-w-7xl p-8'>
 				<div className='flex flex-col lg:flex-row gap-20 items-start'>
-					{/* 좌측 내비게이션 */}
-					<ResumeSidebar onCancel={() => navigate(-1)} />
+					<ResumeSidebar onCancel={() => navigate(-1)} isPending={isPending} />
 
-					{/* 메인 폼 영역 */}
 					<main className='flex-1 w-full space-y-16'>
-						<form id='resume-form' onSubmit={handleSubmit(onSubmit)} className='space-y-16'>
-							{/* 기본 정보 섹션 */}
-							<BasicInfoSection register={register} errors={errors} />
+						{isLoadingDetail ? (
+							<div className='flex flex-col items-center justify-center py-40 gap-4'>
+								<div className='w-10 h-10 animate-spin rounded-full border-4 border-hs-yellow/20 border-t-hs-yellow' />
+								<p className='text-slate-400 font-medium text-sm'>이력서를 불러오는 중이에요...</p>
+							</div>
+						) : (
+							<form id='resume-form' onSubmit={handleSubmit(onSubmit)} className='space-y-16'>
+								<BasicInfoSection register={register} errors={errors} />
 
-							{/* 학력 섹션 */}
-							<EducationSection
-								register={register}
-								control={control}
-								fields={eduFields}
-								onAdd={() => appendEdu({ schoolName: '', major: '', degree: '', startDate: '', endDate: '' })}
-								onRemove={removeEdu}
-							/>
+								<EducationSection
+									register={register}
+									control={control}
+									fields={eduFields}
+									onAdd={() => appendEdu({ schoolName: '', major: '', degree: '', startDate: '', endDate: '' })}
+									onRemove={removeEdu}
+								/>
 
-							{/* 경력 섹션 */}
-							<CareerSection
-								register={register}
-								control={control}
-								fields={careerFields}
-								onAdd={() =>
-									appendCareer({
-										companyName: '',
-										jobTitle: '',
-										position: '',
-										startDate: '',
-										jobDescription: '',
-										quantitativeResults: '',
-									})
-								}
-								onRemove={removeCareer}
-							/>
+								<CareerSection
+									register={register}
+									control={control}
+									fields={careerFields}
+									onAdd={() =>
+										appendCareer({
+											companyName: '',
+											jobTitle: '',
+											position: '',
+											startDate: '',
+											jobDescription: '',
+											quantitativeResults: '',
+										})
+									}
+									onRemove={removeCareer}
+								/>
 
-							{/* 기술 스택 섹션 */}
-							<SkillSection
-								register={register}
-								control={control}
-								fields={skillFields}
-								onAdd={initialData =>
-									appendSkill({
-										skillName: '',
-										proficiency: 'mid',
-										durationMonths: 24,
-										...initialData,
-									})
-								}
-								onRemove={removeSkill}
-							/>
+								<SkillSection
+									register={register}
+									control={control}
+									fields={skillFields}
+									onAdd={initialData =>
+										appendSkill({
+											skillName: '',
+											proficiency: 'mid',
+											durationMonths: 24,
+											...initialData,
+										})
+									}
+									onRemove={removeSkill}
+								/>
 
-							{/* 프로젝트 섹션 */}
-							<ProjectSection
-								register={register}
-								fields={projectFields}
-								onAdd={() =>
-									appendProject({
-										projectName: '',
-										role: '',
-										duration: '',
-										techStack: '',
-										achievementsDescription: '',
-									})
-								}
-								onRemove={removeProject}
-							/>
+								<ProjectSection
+									register={register}
+									fields={projectFields}
+									onAdd={() =>
+										appendProject({
+											projectName: '',
+											role: '',
+											duration: '',
+											techStack: '',
+											achievementsDescription: '',
+										})
+									}
+									onRemove={removeProject}
+								/>
 
-							{/* 자격증 섹션 */}
-							<CertificationSection
-								register={register}
-								fields={certFields}
-								onAdd={() => appendCert({ certificationName: '', issuer: '', acquisitionDate: '' })}
-								onRemove={removeCert}
-							/>
-						</form>
+								<CertificationSection
+									register={register}
+									fields={certFields}
+									onAdd={() => appendCert({ certificationName: '', issuer: '', acquisitionDate: '' })}
+									onRemove={removeCert}
+								/>
+							</form>
+						)}
 					</main>
 				</div>
 			</div>
+
+			{/* 미저장 이탈 방지 다이얼로그 */}
+			{blocker.state === 'blocked' && (
+				<div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4'>
+					<div className='bg-white rounded-2xl p-7 max-w-sm w-full shadow-2xl'>
+						<div className='w-12 h-12 bg-hs-yellow/15 rounded-2xl flex items-center justify-center mb-4'>
+							<span className='text-2xl'>⚠️</span>
+						</div>
+						<h3 className='text-lg font-black text-hs-deep-green mb-2'>저장하지 않은 변경사항</h3>
+						<p className='text-sm text-slate-500 leading-relaxed mb-6'>
+							수정한 내용이 저장되지 않습니다.
+							<br />
+							페이지를 나가시겠습니까?
+						</p>
+						<div className='flex gap-3'>
+							<Button variant='secondary' className='flex-1 py-3' onClick={() => blocker.reset()}>
+								계속 편집
+							</Button>
+							<Button variant='danger' className='flex-1 py-3' onClick={() => blocker.proceed()}>
+								나가기
+							</Button>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }
