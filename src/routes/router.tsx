@@ -13,7 +13,6 @@ import MyCompanyInfoPage from '../pages/company/mypage/MyCompanyInfoPage'
 import MyJobApplicantsDashboardPage from '../pages/company/mypage/MyJobApplicantsDashboardPage'
 import MyJobPostsPage from '../pages/company/mypage/MyJobPostsPage'
 import CompanySettingsPage from '../pages/company/settings/CompanySettingsPage'
-import ResumeListPage from '../pages/user/ResumeListPage'
 import ResumeEditPage from '../pages/user/ResumeEditPage'
 import AnalysisRequestPage from '../pages/user/AnalysisRequestPage'
 import AnalysisResultPage from '../pages/user/AnalysisResultPage'
@@ -49,10 +48,6 @@ const applicantAppChildren = [
 	{
 		path: 'jobs',
 		element: <JobListPage />,
-	},
-	{
-		path: 'resumes',
-		element: <ResumeListPage />,
 	},
 	{
 		path: 'resumes/new',

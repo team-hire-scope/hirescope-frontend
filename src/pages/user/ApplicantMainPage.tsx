@@ -1,77 +1,282 @@
 import { useNavigate } from 'react-router'
-import { Briefcase, Search, Sparkles } from 'lucide-react'
+import { Briefcase, Sparkles, ChevronRight, FileText, TrendingUp, Bell, PenLine, CheckCircle2, Clock } from 'lucide-react'
 import { Button } from '@/components/common/Button'
-import { ResumeSectionCard } from '@/components/common/ResumeSectionCard'
-import { QuickActionCard } from '@/components/user/dashboard/QuickActionCard'
+import { PublicJobCard } from '@/components/job/PublicJobCard'
+
+const RECOMMENDED_JOBS = [
+	{
+		id: '1',
+		companyName: '하이어스코프',
+		title: '시니어 프론트엔드 개발자 (React)',
+		location: '서울 강남구',
+		tags: ['React', 'TypeScript', 'Next.js'],
+		deadline: '2024.05.30',
+		isNew: true,
+	},
+	{
+		id: '2',
+		companyName: '테크이노베이터',
+		title: '백엔드 엔지니어 (Python/FastAPI)',
+		location: '서울 서초구',
+		tags: ['Python', 'FastAPI', 'PostgreSQL'],
+		deadline: '상시 채용',
+		isNew: false,
+	},
+	{
+		id: '3',
+		companyName: '디자인랩',
+		title: '프로덕트 디자이너',
+		location: '서울 성동구',
+		tags: ['Figma', 'Prototyping', 'UI/UX'],
+		deadline: '2024.05.15',
+		isNew: true,
+	},
+]
+
+const STATS = [
+	{ label: '지원한 공고', value: '5', unit: '건', icon: <Briefcase size={18} /> },
+	{ label: 'AI 분석 완료', value: '3', unit: '회', icon: <Sparkles size={18} /> },
+]
+
+interface Resume {
+	id: string
+	updatedAt: string
+	completionRate: number
+	sections: { label: string; done: boolean }[]
+}
+
+// 실제 연동 시 API로 교체
+const MY_RESUME: Resume | null = null
+// const MY_RESUME = {
+// 	id: 'resume-1',
+// 	updatedAt: '2024.04.10',
+// 	completionRate: 80,
+// 	sections: [
+// 		{ label: '기본 정보', done: true },
+// 		{ label: '학력', done: true },
+// 		{ label: '경력', done: true },
+// 		{ label: '기술 스택', done: true },
+// 		{ label: '프로젝트', done: false },
+// 		{ label: '자격증', done: false },
+// 	],
+// }
 
 export default function ApplicantMainPage() {
 	const navigate = useNavigate()
 
+	const handleApply = (id: string) => {
+		navigate(`/analysis/result/${id}`)
+	}
+
 	return (
-		<div className='container mx-auto max-w-5xl p-6 lg:p-12 space-y-12'>
-			<header className='space-y-3'>
-				<h1 className='text-4xl font-black text-hs-deep-green tracking-tight'>반가워요! 👋</h1>
-				<p className='text-lg text-slate-500 font-medium'>
-					하이어스코프와 함께 나만의{' '}
-					<span className='text-hs-yellow underline underline-offset-4'>성공적인 커리어</span>를 설계해보세요.
-				</p>
-			</header>
+		<div className='min-h-screen bg-slate-50/50'>
+			{/* 히어로 섹션 */}
+			<div className='bg-linear-to-br from-hs-deep-green via-hs-deep-green to-[#1e4a2a] relative overflow-hidden'>
+				<div className='absolute inset-0 pointer-events-none'>
+					<div className='absolute top-0 right-0 w-96 h-96 rounded-full bg-hs-yellow/5 translate-x-32 -translate-y-32' />
+					<div className='absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-hs-yellow/5 translate-y-24' />
+				</div>
 
-			{/* 퀵 액션 카드 그리드 */}
-			<div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-				{/* 채용 공고 탐색 */}
-				<QuickActionCard
-					title='채용 공고 탐색'
-					description='나의 기술 스택에 딱 맞는 채용 공고를 필터링하여 찾아보세요.'
-					icon={<Briefcase size={24} />}
-					className='bg-hs-cream/10 border-hs-yellow/10'
-				>
-					<Button className='w-full py-6 font-bold shadow-lg shadow-hs-yellow/10' onClick={() => navigate('/jobs')}>
-						공고 탐색하기
-					</Button>
-				</QuickActionCard>
+				<div className='container mx-auto max-w-7xl px-6 lg:px-12 py-12 lg:py-16 relative'>
+					<div className='flex flex-col lg:flex-row lg:items-end justify-between gap-8'>
+						<div className='space-y-3'>
+							<div className='inline-flex items-center gap-2 bg-hs-yellow/15 text-hs-yellow text-sm font-bold px-3 py-1.5 rounded-full border border-hs-yellow/20'>
+								<Bell size={13} />
+								오늘 새로운 채용 공고 12건이 올라왔어요
+							</div>
+							<h1 className='text-3xl lg:text-4xl font-black text-white tracking-tight'>
+								반가워요! 👋
+								<br />
+								<span className='text-hs-yellow'>성공적인 커리어</span>를 설계해보세요.
+							</h1>
+							<p className='text-slate-400 font-medium max-w-md'>
+								하이어스코프 AI가 당신의 이력서를 분석하고 합격 가능성을 높여드릴게요.
+							</p>
+						</div>
 
-				{/* 내 이력서 관리 */}
-				<QuickActionCard
-					title='내 이력서 관리'
-					description='작성 중이거나 완료된 이력서가 여기에 표시됩니다.'
-					icon={<Search size={24} />}
-					iconBgColor='bg-hs-deep-green/10'
-					iconColor='text-hs-deep-green'
-				>
-					<div className='flex gap-2'>
-						<Button variant='secondary' className='flex-1 py-6 font-bold' onClick={() => navigate('/resumes')}>
-							목록
-						</Button>
-						<Button className='flex-1 py-6 font-bold' onClick={() => navigate('/resumes/new')}>
-							새 작성
-						</Button>
+						<div className='flex gap-4'>
+							{STATS.map(stat => (
+								<div
+									key={stat.label}
+									className='bg-white/8 border border-white/10 rounded-2xl px-5 py-4 text-center backdrop-blur-sm min-w-[90px]'
+								>
+									<div className='text-hs-yellow/70 flex justify-center mb-1'>{stat.icon}</div>
+									<div className='text-2xl font-black text-white'>
+										{stat.value}
+										<span className='text-sm font-bold text-slate-400 ml-0.5'>{stat.unit}</span>
+									</div>
+									<div className='text-xs text-slate-400 font-medium mt-0.5 whitespace-nowrap'>
+										{stat.label}
+									</div>
+								</div>
+							))}
+						</div>
 					</div>
-				</QuickActionCard>
-
-				{/* AI 면접 분석 */}
-				<QuickActionCard
-					title='AI 면접 분석'
-					description='이력서와 JD를 분석하여 예상 질문을 생성하고 합격률을 높이세요.'
-					icon={<Sparkles size={24} />}
-					iconBgColor='bg-white/10'
-					iconColor='text-hs-yellow'
-					className='bg-hs-deep-green text-white'
-				>
-					<Button
-						className='w-full py-6 bg-white text-hs-deep-green font-bold border-none hover:bg-white hover:text-hs-deep-green'
-						onClick={() => navigate('/analysis/request')}
-					>
-						분석 시작하기
-					</Button>
-				</QuickActionCard>
+				</div>
 			</div>
 
-			<ResumeSectionCard title='최근 분석 리포트'>
-				<div className='text-center py-16 border-2 border-dashed border-hs-yellow/20 rounded-[32px] bg-white'>
-					<p className='text-slate-400 font-bold'>아직 분석 결과가 없습니다. 이력서를 작성하고 공고에 지원해보세요!</p>
+			<div className='container mx-auto max-w-7xl px-6 lg:px-12 py-10 space-y-12'>
+				{/* 퀵 액션 + 이력서 카드 */}
+				<div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+					{/* 채용 공고 탐색 */}
+					<div
+						className='group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-hs-yellow/30 transition-all cursor-pointer'
+						onClick={() => navigate('/jobs')}
+					>
+						<div className='flex items-start justify-between mb-5'>
+							<div className='w-11 h-11 bg-hs-yellow/15 rounded-xl flex items-center justify-center text-hs-yellow'>
+								<Briefcase size={22} />
+							</div>
+							<ChevronRight
+								size={18}
+								className='text-slate-300 group-hover:text-hs-yellow group-hover:translate-x-0.5 transition-all'
+							/>
+						</div>
+						<h3 className='text-lg font-extrabold text-hs-deep-green mb-1.5'>채용 공고 탐색</h3>
+						<p className='text-sm text-slate-500 leading-relaxed mb-5'>
+							공고에 지원하면 AI가 자동으로 이력서를 분석하고 예상 질문을 만들어드려요.
+						</p>
+						<Button className='w-full font-bold rounded-xl py-5 shadow-sm shadow-hs-yellow/20'>공고 탐색하기</Button>
+					</div>
+
+					{/* 내 이력서 — 상태에 따라 분기 */}
+					{MY_RESUME ? (
+						<ResumeStatusCard resume={MY_RESUME} onEdit={() => navigate(`/resumes/${MY_RESUME.id}/edit`)} />
+					) : (
+						<ResumeEmptyCard onCreate={() => navigate('/resumes/new')} />
+					)}
 				</div>
-			</ResumeSectionCard>
+
+				{/* 실시간 인기 채용 공고 */}
+				<section className='space-y-6'>
+					<div className='flex items-center justify-between'>
+						<div>
+							<h2 className='text-xl font-black text-hs-deep-green flex items-center gap-2.5'>
+								<TrendingUp size={20} className='text-hs-yellow' />
+								실시간 인기 채용 공고
+							</h2>
+							<p className='text-sm text-slate-400 mt-0.5 font-medium'>지금 가장 많이 조회된 공고예요</p>
+						</div>
+						<button
+							onClick={() => navigate('/jobs')}
+							className='flex items-center gap-1 text-slate-400 text-sm font-bold hover:text-hs-deep-green transition-colors group'
+						>
+							전체 보기
+							<ChevronRight size={16} className='group-hover:translate-x-0.5 transition-transform' />
+						</button>
+					</div>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
+						{RECOMMENDED_JOBS.map(job => (
+							<PublicJobCard key={job.id} {...job} onApply={handleApply} />
+						))}
+					</div>
+				</section>
+
+				{/* 최근 분석 리포트 */}
+				<section className='space-y-6'>
+					<div>
+						<h2 className='text-xl font-black text-hs-deep-green flex items-center gap-2.5'>
+							<Sparkles size={20} className='text-hs-yellow' />
+							최근 분석 리포트
+						</h2>
+						<p className='text-sm text-slate-400 mt-0.5 font-medium'>AI가 분석한 나의 이력서 결과</p>
+					</div>
+
+					<div className='bg-white rounded-2xl border border-slate-100 shadow-sm'>
+						<div className='flex flex-col items-center justify-center py-20 px-6 text-center'>
+							<div className='w-16 h-16 bg-hs-yellow/10 rounded-2xl flex items-center justify-center mb-4'>
+								<Sparkles size={28} className='text-hs-yellow' />
+							</div>
+							<p className='text-slate-700 font-bold text-base mb-1'>아직 분석 결과가 없어요</p>
+							<p className='text-slate-400 text-sm mb-6'>채용 공고에 지원하면 AI가 자동으로 분석을 시작해요</p>
+							<Button
+								onClick={() => navigate('/jobs')}
+								className='px-6 py-2.5 font-bold rounded-xl shadow-sm shadow-hs-yellow/20'
+							>
+								공고 보러 가기
+							</Button>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+	)
+}
+
+/* ── 이력서 없음 카드 ── */
+function ResumeEmptyCard({ onCreate }: { onCreate: () => void }) {
+	return (
+		<div className='bg-white rounded-2xl border border-dashed border-slate-200 p-6 shadow-sm flex flex-col'>
+			<div className='flex items-start justify-between mb-5'>
+				<div className='w-11 h-11 bg-hs-deep-green/6 rounded-xl flex items-center justify-center text-hs-deep-green/40'>
+					<FileText size={22} />
+				</div>
+			</div>
+			<h3 className='text-lg font-extrabold text-hs-deep-green mb-1.5'>내 이력서</h3>
+			<p className='text-sm text-slate-400 leading-relaxed mb-5 flex-1'>
+				아직 작성된 이력서가 없어요.
+				<br />
+				이력서는 계정당 1개만 작성할 수 있어요.
+			</p>
+			<Button className='w-full font-bold rounded-xl py-5' onClick={onCreate}>
+				이력서 작성하기
+			</Button>
+		</div>
+	)
+}
+
+/* ── 이력서 있음 카드 ── */
+function ResumeStatusCard({ resume, onEdit }: { resume: Resume; onEdit: () => void }) {
+	const done = resume.sections.filter(s => s.done).length
+	const total = resume.sections.length
+
+	return (
+		<div className='bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col'>
+			{/* 완성도 바 */}
+			<div className='h-1 bg-slate-100'>
+				<div className='h-full bg-hs-yellow transition-all' style={{ width: `${resume.completionRate}%` }} />
+			</div>
+
+			<div className='p-6 flex flex-col flex-1'>
+				<div className='flex items-start justify-between mb-4'>
+					<div className='w-11 h-11 bg-hs-deep-green/8 rounded-xl flex items-center justify-center text-hs-deep-green'>
+						<FileText size={22} />
+					</div>
+					<span className='text-xs font-extrabold text-hs-yellow bg-hs-yellow/10 px-2.5 py-1 rounded-full border border-hs-yellow/20'>
+						{resume.completionRate}% 완성
+					</span>
+				</div>
+
+				<h3 className='text-lg font-extrabold text-hs-deep-green mb-0.5'>내 이력서</h3>
+				<div className='flex items-center gap-1 text-xs text-slate-400 font-medium mb-4'>
+					<Clock size={11} />
+					마지막 수정 {resume.updatedAt}
+				</div>
+
+				{/* 섹션 현황 */}
+				<div className='bg-slate-50 rounded-xl px-4 py-3 mb-5 flex-1'>
+					<p className='text-xs font-bold text-slate-400 mb-2'>
+						섹션 작성 현황 ({done}/{total})
+					</p>
+					<div className='grid grid-cols-2 gap-y-1.5 gap-x-2'>
+						{resume.sections.map(s => (
+							<div key={s.label} className='flex items-center gap-1.5 text-xs font-medium'>
+								{s.done ? (
+									<CheckCircle2 size={13} className='text-hs-green shrink-0' />
+								) : (
+									<div className='w-[13px] h-[13px] rounded-full border-2 border-slate-200 shrink-0' />
+								)}
+								<span className={s.done ? 'text-slate-600' : 'text-slate-400'}>{s.label}</span>
+							</div>
+						))}
+					</div>
+				</div>
+
+				<Button className='w-full font-bold rounded-xl py-5 flex items-center gap-2' onClick={onEdit}>
+					<PenLine size={15} />
+					이력서 수정하기
+				</Button>
+			</div>
 		</div>
 	)
 }
