@@ -12,7 +12,7 @@ const JobCreatePage = () => {
 			<div className='w-full rounded-xl border border-hs-cream bg-white p-6 shadow-sm'>
 				<JDForm />
 				<div className='mt-4 flex items-center justify-between border-t border-hs-cream pt-4'>
-					<Link to='/settings/company' className='text-sm font-medium text-hs-deep-green'>
+					<Link to='/company-main' className='text-sm font-medium text-hs-deep-green'>
 						이전 단계
 					</Link>
 					<Link to='/jobs'>

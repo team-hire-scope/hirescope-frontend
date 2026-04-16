@@ -74,7 +74,7 @@ export const TopNav = () => {
 				{userType === 'company' && (
 					<div className='flex items-center gap-3 text-sm font-medium'>
 						<span className='text-hs-deep-green'>{displayName}님 안녕하세요.</span>
-						<Link to='com-mypage/company' className='text-black hover:text-hs-deep-green'>
+						<Link to='company-main' className='text-black hover:text-hs-deep-green'>
 							마이페이지
 						</Link>
 						<button onClick={handleLogout} className='text-black hover:text-hs-deep-green cursor-pointer'>

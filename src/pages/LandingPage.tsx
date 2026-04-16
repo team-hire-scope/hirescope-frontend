@@ -29,7 +29,7 @@ const LandingPage = () => {
 		const userAuth = window.localStorage.getItem(USER_AUTH_KEY)
 
 		if (companyAuth) {
-			navigate('/settings/company', { replace: true })
+			navigate('/company-main', { replace: true })
 		} else if (userAuth) {
 			navigate('/applicant-main', { replace: true })
 		}
@@ -51,7 +51,7 @@ const LandingPage = () => {
 					<Link to='/jobs'>
 						<Button>채용 공고 보기</Button>
 					</Link>
-					<Link to='/settings/company'>
+					<Link to='/company-main'>
 						<Button variant='secondary'>기업 정보 설정</Button>
 					</Link>
 				</div>

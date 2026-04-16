@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router'
 import { Layout } from '../components/layout/Layout'
 import { MyPageLayout } from '../components/company/mypage/MyPageLayout'
 import CompanyAuthPage from '../pages/company/auth/AuthPage'
+import CompanyMainPage from '../pages/company/CompanyMainPage'
 import UserAuthPage from '../pages/user/auth/UserAuthPage'
 import LoginTypeSelectPage from '../pages/LoginTypeSelectPage'
 import CandidateDetailPage from '../pages/company/candidates/CandidateDetailPage'
@@ -11,7 +12,6 @@ import LandingPage from '../pages/LandingPage'
 import MyCompanyInfoPage from '../pages/company/mypage/MyCompanyInfoPage'
 import MyJobApplicantsDashboardPage from '../pages/company/mypage/MyJobApplicantsDashboardPage'
 import MyJobPostsPage from '../pages/company/mypage/MyJobPostsPage'
-import CompanySettingsPage from '../pages/company/settings/CompanySettingsPage'
 import ResumeListPage from '../pages/user/ResumeListPage'
 import ResumeEditPage from '../pages/user/ResumeEditPage'
 import AnalysisRequestPage from '../pages/user/AnalysisRequestPage'
@@ -73,8 +73,8 @@ const applicantAppChildren = [
 
 const companyAppChildren = [
 	{
-		path: 'settings/company',
-		element: <CompanySettingsPage />,
+		path: 'company-main',
+		element: <CompanyMainPage />,
 	},
 	{
 		path: 'jobs/create',
