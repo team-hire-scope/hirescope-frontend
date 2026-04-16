@@ -27,7 +27,7 @@ const MyJobPostsPage = () => {
 				{myJobs.map(job => (
 					<Link
 						key={job.id}
-						to={`/mypage/jobs/${job.id}`}
+						to={`/com-mypage/jobs/${job.id}`}
 						className='block rounded-xl border border-hs-cream bg-white p-4 shadow-sm transition hover:border-hs-yellow'
 					>
 						<div className='mb-1 flex items-center justify-between'>

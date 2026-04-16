@@ -5,7 +5,6 @@ import CompanyAuthPage from '../pages/company/auth/AuthPage'
 import UserAuthPage from '../pages/user/auth/UserAuthPage'
 import LoginTypeSelectPage from '../pages/LoginTypeSelectPage'
 import CandidateDetailPage from '../pages/company/candidates/CandidateDetailPage'
-import JobCandidatesPage from '../pages/company/candidates/JobCandidatesPage'
 import JobCreatePage from '../pages/company/jobs/JobCreatePage'
 import JobListPage from '../pages/JobListPage'
 import LandingPage from '../pages/LandingPage'
@@ -82,10 +81,6 @@ const companyAppChildren = [
 		element: <JobCreatePage />,
 	},
 	{
-		path: 'jobs/:jobId/candidates',
-		element: <JobCandidatesPage />,
-	},
-	{
 		path: 'candidates/:candidateId',
 		element: <CandidateDetailPage />,
 	},
@@ -104,6 +99,10 @@ const companyAppChildren = [
 			{
 				path: 'jobs/:jobId',
 				element: <MyJobApplicantsDashboardPage />,
+			},
+			{
+				path: 'jobs/:jobId/:candidateId',
+				element: <CandidateDetailPage />,
 			},
 		],
 	},

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { FilterBar } from '../../../components/company/candidate/FilterBar'
 import { SortDropdown } from '../../../components/company/candidate/SortDropdown'
 import { Badge } from '../../../components/common/Badge'
@@ -62,6 +62,7 @@ const weightedCandidates: WeightedCandidate[] = [
 
 const MyJobApplicantsDashboardPage = () => {
 	const { jobId } = useParams()
+	const navigate = useNavigate()
 	const [status, setStatus] = useState<'all' | '검토중' | '서류 통과' | '면접 예정' | '탈락'>('all')
 	const [scoreBand, setScoreBand] = useState<'all' | '90+' | '80-89' | 'under-80'>('all')
 	const [keyword, setKeyword] = useState('')
@@ -120,7 +121,18 @@ const MyJobApplicantsDashboardPage = () => {
 					<tbody>
 						{visibleCandidates.map(candidate => (
 							<tr key={candidate.id} className='border-t border-hs-cream align-top'>
-								<td className='px-4 py-3 font-medium text-black'>{candidate.name}</td>
+								<td className='px-4 py-3 font-medium text-black'>
+									<button
+										type='button'
+										className='text-left hover:underline'
+										onClick={() => {
+											if (!jobId) return
+											navigate(`/com-mypage/jobs/${jobId}/${candidate.id}`)
+										}}
+									>
+										{candidate.name}
+									</button>
+								</td>
 								<td className='px-4 py-3 text-black'>{candidate.totalScore}</td>
 								<td className='px-4 py-3 text-black'>
 									<div>직무적합 {candidate.fitScore}</div>
