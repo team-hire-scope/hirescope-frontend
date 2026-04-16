@@ -1,0 +1,29 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, deploy]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Ensure target directory exists
+        run: mkdir -p /srv/hirescope/frontend
+
+      - name: Sync frontend source
+        run: rsync -av --delete --exclude '.git' ./ /srv/hirescope/frontend/
+
+      - name: Rebuild and restart frontend container
+        run: docker compose -f /srv/hirescope/deploy/docker-compose.prod.yml up -d --build frontend
+
+      - name: Show frontend container status
+        run: docker ps --filter "name=hirescope-frontend"
