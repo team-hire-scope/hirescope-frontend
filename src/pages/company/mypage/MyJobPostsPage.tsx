@@ -56,24 +56,12 @@ const MyJobPostsPage = () => {
 					>
 						<div className='mb-3 flex flex-wrap items-start justify-between gap-3'>
 							<div className='min-w-0 flex-1'>
-								<Link
-									to={`/jobs/${job.id}`}
-									className='text-base font-semibold text-black hover:text-hs-deep-green'
-								>
-									{job.jobTitle}
-								</Link>
+								<h3 className='text-base font-semibold text-black'>{job.jobTitle}</h3>
 								<p className='mt-1 text-sm text-black'>{job.companyName}</p>
 							</div>
-							<div className='flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center'>
-								<div className='text-right text-sm text-black'>
-									<p>등록일 {formatDate(job.createdAt)}</p>
-									<p className='mt-1 text-black/60'>수정일 {formatDate(job.updatedAt)}</p>
-								</div>
-								<Link to={`/jobs/${job.id}/edit`}>
-									<Button variant='secondary' size='sm'>
-										글 수정하기
-									</Button>
-								</Link>
+							<div className='shrink-0 text-right text-sm text-black'>
+								<p>등록일 {formatDate(job.createdAt)}</p>
+								<p className='mt-1 text-black/60'>수정일 {formatDate(job.updatedAt)}</p>
 							</div>
 						</div>
 
@@ -107,10 +95,20 @@ const MyJobPostsPage = () => {
 							</div>
 						</div>
 
-						<div className='mt-4 flex flex-wrap gap-2'>
+						<div className='mt-4 flex flex-wrap items-center gap-2'>
+							<Link to={`/jobs/${job.id}`}>
+								<Button variant='secondary' size='sm'>
+									공고글 보러가기
+								</Button>
+							</Link>
 							<Link to={`/com-mypage/jobs/${job.id}`}>
-								<Button variant='ghost' size='sm'>
+								<Button variant='secondary' size='sm'>
 									지원자 관리
+								</Button>
+							</Link>
+							<Link to={`/jobs/${job.id}/edit`}>
+								<Button variant='secondary' size='sm'>
+									글 수정하기
 								</Button>
 							</Link>
 						</div>

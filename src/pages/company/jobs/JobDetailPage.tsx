@@ -1,6 +1,5 @@
 import { isAxiosError } from 'axios'
-import { Link, useParams } from 'react-router'
-import { Button } from '../../../components/common/Button'
+import { useParams } from 'react-router'
 import { useJobDetail } from '../../../hooks/company/useJobDetail'
 
 const formatDate = (value: string) =>
@@ -20,7 +19,7 @@ const JobDetailPage = () => {
 
 	if (isFetching) {
 		return (
-			<section className='w-full max-w-4xl space-y-4'>
+			<section className='mx-auto w-full max-w-4xl space-y-4 text-center'>
 				<p className='text-sm text-black/60'>불러오는 중...</p>
 			</section>
 		)
@@ -32,7 +31,7 @@ const JobDetailPage = () => {
 				? String(error.response.data.message)
 				: '공고 정보를 불러오지 못했습니다.'
 		return (
-			<section className='w-full max-w-4xl rounded-xl border border-rose-200 bg-rose-50 p-6 text-sm font-medium text-rose-600'>
+			<section className='mx-auto w-full max-w-4xl rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm font-medium text-rose-600'>
 				{message}
 			</section>
 		)
@@ -40,25 +39,20 @@ const JobDetailPage = () => {
 
 	if (!job) {
 		return (
-			<section className='w-full max-w-4xl rounded-xl border border-hs-cream bg-white p-6 text-sm text-black'>
+			<section className='mx-auto w-full max-w-4xl rounded-xl border border-hs-cream bg-white p-6 text-center text-sm text-black'>
 				데이터가 없습니다.
 			</section>
 		)
 	}
 
 	return (
-		<section className='w-full max-w-4xl space-y-6'>
-			<div className='flex flex-wrap items-center justify-between gap-3'>
-				<div>
-					<h1 className='text-2xl font-semibold text-hs-deep-green'>{job.jobTitle}</h1>
-					<p className='mt-1 text-sm text-black'>{job.companyName}</p>
-					<p className='mt-1 text-xs text-black/60'>
-						등록 {formatDate(job.createdAt)} · 수정 {formatDate(job.updatedAt)}
-					</p>
-				</div>
-				<Link to={id ? `/com-mypage/jobs/${id}` : '/com-mypage/jobs'}>
-					<Button variant='secondary'>지원자 대시보드로</Button>
-				</Link>
+		<section className='mx-auto w-full max-w-4xl space-y-6'>
+			<div className='text-center'>
+				<h1 className='text-2xl font-semibold text-hs-deep-green'>{job.jobTitle}</h1>
+				<p className='mt-1 text-sm text-black'>{job.companyName}</p>
+				<p className='mt-1 text-xs text-black/60'>
+					등록 {formatDate(job.createdAt)} · 수정 {formatDate(job.updatedAt)}
+				</p>
 			</div>
 
 			<div className='rounded-xl border border-hs-cream bg-white p-6 shadow-sm'>

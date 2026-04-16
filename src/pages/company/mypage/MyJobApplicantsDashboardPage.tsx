@@ -114,10 +114,24 @@ const MyJobApplicantsDashboardPage = () => {
 					/>
 				</div>
 			</div>
-			<div className='flex items-center justify-between'>
-				<Link to={jobId ? `/jobs/${jobId}` : '/com-mypage/jobs'}>
-					<Button variant='secondary'>공고글 보러가기</Button>
-				</Link>
+			<div className='flex flex-wrap items-center justify-between gap-3'>
+				<div className='flex flex-wrap items-center gap-2'>
+					<Link to={jobId ? `/jobs/${jobId}` : '/com-mypage/jobs'}>
+						<Button variant='secondary' size='sm'>
+							공고글 보러가기
+						</Button>
+					</Link>
+					<Link to={jobId ? `/com-mypage/jobs/${jobId}` : '/com-mypage/jobs'}>
+						<Button variant='secondary' size='sm'>
+							지원자 관리
+						</Button>
+					</Link>
+					<Link to={jobId ? `/jobs/${jobId}/edit` : '/com-mypage/jobs'}>
+						<Button variant='secondary' size='sm'>
+							글 수정하기
+						</Button>
+					</Link>
+				</div>
 				<SortDropdown value={sortBy} onChange={setSortBy} />
 			</div>
 
