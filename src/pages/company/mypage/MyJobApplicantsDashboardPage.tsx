@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { FilterBar } from '../../../components/company/candidate/FilterBar'
 import { SortDropdown } from '../../../components/company/candidate/SortDropdown'
 import { CandidateTable, type CandidateRow } from '../../../components/company/candidate/CandidateTable'
+import { Button } from '../../../components/common/Button'
 
 interface WeightedCandidate {
 	id: string
@@ -18,7 +19,7 @@ interface WeightedCandidate {
 	summary: string
 }
 
-const weightedCandidates: WeightedCandidate[] = [
+const initialWeightedCandidates: WeightedCandidate[] = [
 	{
 		id: 'c1',
 		name: '김지원',
@@ -67,6 +68,7 @@ const MyJobApplicantsDashboardPage = () => {
 	const [scoreBand, setScoreBand] = useState<'all' | '90+' | '80-89' | 'under-80'>('all')
 	const [keyword, setKeyword] = useState('')
 	const [sortBy, setSortBy] = useState<'score-desc' | 'score-asc' | 'latest'>('score-desc')
+	const [weightedCandidates, setWeightedCandidates] = useState<WeightedCandidate[]>(initialWeightedCandidates)
 
 	const visibleCandidates = useMemo(() => {
 		const filtered = weightedCandidates.filter(candidate => {
@@ -86,7 +88,7 @@ const MyJobApplicantsDashboardPage = () => {
 			if (sortBy === 'score-asc') return a.totalScore - b.totalScore
 			return new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
 		})
-	}, [keyword, scoreBand, sortBy, status])
+	}, [keyword, scoreBand, sortBy, status, weightedCandidates])
 
 	return (
 		<section className='space-y-6'>
@@ -103,7 +105,10 @@ const MyJobApplicantsDashboardPage = () => {
 				onScoreBandChange={setScoreBand}
 				onKeywordChange={setKeyword}
 			/>
-			<div className='flex justify-end'>
+			<div className='flex items-center justify-between'>
+				<Link to={jobId ? `/com-mypage/jobs/${jobId}` : '/com-mypage/jobs'}>
+					<Button variant='secondary'>공고글 보러가기</Button>
+				</Link>
 				<SortDropdown value={sortBy} onChange={setSortBy} />
 			</div>
 
@@ -127,6 +132,12 @@ const MyJobApplicantsDashboardPage = () => {
 				onNameClick={candidate => {
 					if (!jobId) return
 					navigate(`/com-mypage/jobs/${jobId}/${candidate.id}`)
+				}}
+				onStatusChange={(candidateId, nextStatus) => {
+					setStatus(prev => (prev === 'all' ? prev : 'all'))
+					setWeightedCandidates(prev =>
+						prev.map(candidate => (candidate.id === candidateId ? { ...candidate, status: nextStatus } : candidate))
+					)
 				}}
 				getDetailPath={candidate => {
 					if (!jobId) return `/candidates/${candidate.id}`

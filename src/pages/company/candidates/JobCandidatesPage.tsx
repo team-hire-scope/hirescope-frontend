@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { CandidateTable, type CandidateRow } from '../../../components/company/candidate/CandidateTable'
 import { FilterBar } from '../../../components/company/candidate/FilterBar'
 import { SortDropdown } from '../../../components/company/candidate/SortDropdown'
+import { Button } from '../../../components/common/Button'
 
-const candidates: CandidateRow[] = [
+const initialCandidates: CandidateRow[] = [
 	{
 		id: 'c1',
 		name: '김지원',
@@ -69,6 +70,7 @@ const candidates: CandidateRow[] = [
 
 const JobCandidatesPage = () => {
 	const { jobId } = useParams()
+	const [candidates, setCandidates] = useState<CandidateRow[]>(initialCandidates)
 	const [status, setStatus] = useState<'all' | '검토중' | '서류 통과' | '면접 예정' | '탈락'>('all')
 	const [scoreBand, setScoreBand] = useState<'all' | '90+' | '80-89' | 'under-80'>('all')
 	const [keyword, setKeyword] = useState('')
@@ -92,7 +94,7 @@ const JobCandidatesPage = () => {
 			if (sortBy === 'score-asc') return a.score - b.score
 			return new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
 		})
-	}, [keyword, scoreBand, sortBy, status])
+	}, [candidates, keyword, scoreBand, sortBy, status])
 
 	return (
 		<section className='w-full space-y-6'>
@@ -110,10 +112,21 @@ const JobCandidatesPage = () => {
 				onScoreBandChange={setScoreBand}
 				onKeywordChange={setKeyword}
 			/>
-			<div className='flex justify-end'>
+			<div className='flex items-center justify-between'>
+				<Link to={jobId ? `/com-mypage/jobs/${jobId}` : '/com-mypage/jobs'}>
+					<Button variant='secondary'>공고글 보러가기</Button>
+				</Link>
 				<SortDropdown value={sortBy} onChange={setSortBy} />
 			</div>
-			<CandidateTable candidates={visibleCandidates} />
+			<CandidateTable
+				candidates={visibleCandidates}
+				onStatusChange={(candidateId, nextStatus) => {
+					setStatus(prev => (prev === 'all' ? prev : 'all'))
+					setCandidates(prev =>
+						prev.map(candidate => (candidate.id === candidateId ? { ...candidate, status: nextStatus } : candidate))
+					)
+				}}
+			/>
 		</section>
 	)
 }

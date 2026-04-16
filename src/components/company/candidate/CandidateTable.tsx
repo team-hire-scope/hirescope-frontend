@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
-import { Badge } from '../../common/Badge'
 import { Button } from '../../common/Button'
+import { StatusSelect } from '../common/statusSelect'
+import { useState } from 'react'
 
 export interface CandidateRow {
 	id: string
@@ -20,16 +21,12 @@ interface CandidateTableProps {
 	candidates: CandidateRow[]
 	onNameClick?: (candidate: CandidateRow) => void
 	getDetailPath?: (candidate: CandidateRow) => string
+	onStatusChange?: (candidateId: string, status: CandidateRow['status']) => void
 }
 
-const statusVariantMap: Record<CandidateRow['status'], 'default' | 'success' | 'warning' | 'danger'> = {
-	검토중: 'default',
-	'서류 통과': 'success',
-	'면접 예정': 'warning',
-	탈락: 'danger',
-}
+export const CandidateTable = ({ candidates, onNameClick, getDetailPath, onStatusChange }: CandidateTableProps) => {
+	const [statusOverrideById, setStatusOverrideById] = useState<Record<string, CandidateRow['status']>>({})
 
-export const CandidateTable = ({ candidates, onNameClick, getDetailPath }: CandidateTableProps) => {
 	// 요약 리포트 컬럼은 데이터에 summary가 있을 때만 노출
 	const hasSummary = candidates.some(candidate => Boolean(candidate.summary))
 
@@ -37,7 +34,7 @@ export const CandidateTable = ({ candidates, onNameClick, getDetailPath }: Candi
 	const detailPath = getDetailPath ?? defaultGetDetailPath
 
 	return (
-		<div className='w-full overflow-x-auto rounded-xl border border-hs-cream bg-white shadow-sm'>
+		<div className='w-full overflow-visible rounded-xl border border-hs-cream bg-white shadow-sm'>
 			<table className='min-w-full text-left text-sm'>
 				<thead className='bg-hs-cream text-hs-deep-green'>
 					<tr>
@@ -69,7 +66,7 @@ export const CandidateTable = ({ candidates, onNameClick, getDetailPath }: Candi
 							</td>
 							<td className='px-4 py-3 text-black'>
 								<div className='text-sm font-semibold text-black'>총점 {candidate.score}</div>
-								<div className='mt-1 flex flex-nowrap items-center gap-x-3 text-xs text-black/50 whitespace-nowrap'>
+								<div className='mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-black/50'>
 									<span>직무적합 {candidate.fitScore}</span>
 									<span>경력일관 {candidate.careerScore}</span>
 									<span>기술매칭 {candidate.stackScore}</span>
@@ -80,7 +77,21 @@ export const CandidateTable = ({ candidates, onNameClick, getDetailPath }: Candi
 							<td className='px-4 py-3 text-black'>{candidate.appliedAt}</td>
 							{hasSummary && <td className='px-4 py-3 text-black'>{candidate.summary}</td>}
 							<td className='px-4 py-3'>
-								<Badge variant={statusVariantMap[candidate.status]}>{candidate.status}</Badge>
+								<StatusSelect
+									value={statusOverrideById[candidate.id] ?? candidate.status}
+									options={[
+										{ value: '검토중', label: '검토중' },
+										{ value: '서류 통과', label: '서류 통과' },
+										{ value: '면접 예정', label: '면접 예정' },
+										{ value: '탈락', label: '탈락' },
+									]}
+									onChange={val => {
+										const nextStatus = val as CandidateRow['status']
+										setStatusOverrideById(prev => ({ ...prev, [candidate.id]: nextStatus }))
+										onStatusChange?.(candidate.id, nextStatus)
+									}}
+									className='min-w-40'
+								/>
 							</td>
 							<td className='px-4 py-3'>
 								<Link
