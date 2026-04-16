@@ -71,7 +71,7 @@ export const Select = ({ label, error, options, value, onChange, placeholder = '
 				{/* 커스텀 옵션 리스트 */}
 				{isOpen && (
 					<div className='absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-hs-yellow/20 bg-white p-2 shadow-[0_10px_40px_rgba(0,0,0,0.1)] animate-in fade-in zoom-in-95 duration-200'>
-						<div className='max-h-60 overflow-y-auto space-y-1 custom-scrollbar'>
+						<div className='max-h-60 overflow-y-auto space-y-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
 							{options.map(opt => (
 								<button
 									key={opt.value}

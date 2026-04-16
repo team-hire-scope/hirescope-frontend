@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { FilterBar } from '../../../components/company/candidate/FilterBar'
 import { SortDropdown } from '../../../components/company/candidate/SortDropdown'
-import { Badge } from '../../../components/common/Badge'
+import { CandidateTable, type CandidateRow } from '../../../components/company/candidate/CandidateTable'
 
 interface WeightedCandidate {
 	id: string
@@ -107,61 +107,32 @@ const MyJobApplicantsDashboardPage = () => {
 				<SortDropdown value={sortBy} onChange={setSortBy} />
 			</div>
 
-			<div className='w-full overflow-hidden rounded-xl border border-hs-cream bg-white shadow-sm'>
-				<table className='min-w-full text-left text-sm'>
-					<thead className='bg-hs-cream text-hs-deep-green'>
-						<tr>
-							<th className='px-4 py-3'>지원자</th>
-							<th className='px-4 py-3'>총점</th>
-							<th className='px-4 py-3'>세부 점수</th>
-							<th className='px-4 py-3'>요약 리포트</th>
-							<th className='px-4 py-3'>상태</th>
-						</tr>
-					</thead>
-					<tbody>
-						{visibleCandidates.map(candidate => (
-							<tr key={candidate.id} className='border-t border-hs-cream align-top'>
-								<td className='px-4 py-3 font-medium text-black'>
-									<button
-										type='button'
-										className='text-left hover:underline'
-										onClick={() => {
-											if (!jobId) return
-											navigate(`/com-mypage/jobs/${jobId}/${candidate.id}`)
-										}}
-									>
-										{candidate.name}
-									</button>
-								</td>
-								<td className='px-4 py-3 text-black'>{candidate.totalScore}</td>
-								<td className='px-4 py-3 text-black'>
-									<div>직무적합 {candidate.fitScore}</div>
-									<div>경력일관 {candidate.careerScore}</div>
-									<div>기술매칭 {candidate.stackScore}</div>
-									<div>정량성과 {candidate.achievementScore}</div>
-									<div>문서품질 {candidate.docScore}</div>
-								</td>
-								<td className='px-4 py-3 text-black'>{candidate.summary}</td>
-								<td className='px-4 py-3'>
-									<Badge
-										variant={
-											candidate.status === '서류 통과'
-												? 'success'
-												: candidate.status === '면접 예정'
-													? 'warning'
-													: candidate.status === '탈락'
-														? 'danger'
-														: 'default'
-										}
-									>
-										{candidate.status}
-									</Badge>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
+			<CandidateTable
+				candidates={visibleCandidates.map(
+					candidate =>
+						({
+							id: candidate.id,
+							name: candidate.name,
+							score: candidate.totalScore,
+							fitScore: candidate.fitScore,
+							careerScore: candidate.careerScore,
+							stackScore: candidate.stackScore,
+							achievementScore: candidate.achievementScore,
+							docScore: candidate.docScore,
+							status: candidate.status,
+							appliedAt: candidate.appliedAt,
+							summary: candidate.summary,
+						}) satisfies CandidateRow
+				)}
+				onNameClick={candidate => {
+					if (!jobId) return
+					navigate(`/com-mypage/jobs/${jobId}/${candidate.id}`)
+				}}
+				getDetailPath={candidate => {
+					if (!jobId) return `/candidates/${candidate.id}`
+					return `/com-mypage/jobs/${jobId}/${candidate.id}`
+				}}
+			/>
 		</section>
 	)
 }
