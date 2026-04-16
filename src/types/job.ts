@@ -15,6 +15,8 @@ export interface JobListItem {
 	updatedAt: string
 }
 
+export type JobPost = JobListItem
+
 export interface JobUpsertPayload {
 	companyName: string
 	jobTitle: string
