@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { Briefcase, Sparkles, ChevronRight, FileText, TrendingUp, Bell, PenLine, CheckCircle2, Clock } from 'lucide-react'
 import { Button } from '@/components/common/Button'
 import { PublicJobCard } from '@/components/job/PublicJobCard'
+import { cn } from '@/utils/cn'
 
 const RECOMMENDED_JOBS = [
 	{
@@ -78,7 +80,7 @@ export default function ApplicantMainPage() {
 				</div>
 
 				<div className='container mx-auto max-w-7xl px-6 lg:px-12 py-12 lg:py-16 relative'>
-					<div className='flex flex-col lg:flex-row lg:items-end justify-between gap-8'>
+					<div className='flex flex-col lg:flex-row lg:items-end justify-between'>
 						<div className='space-y-3'>
 							<div className='inline-flex items-center gap-2 bg-hs-yellow/15 text-hs-yellow text-sm font-bold px-3 py-1.5 rounded-full border border-hs-yellow/20'>
 								<Bell size={13} />
@@ -89,7 +91,7 @@ export default function ApplicantMainPage() {
 								<br />
 								<span className='text-hs-yellow'>성공적인 커리어</span>를 설계해보세요.
 							</h1>
-							<p className='text-slate-400 font-medium max-w-md'>
+							<p className='text-slate-400 font-medium'>
 								하이어스코프 AI가 당신의 이력서를 분석하고 합격 가능성을 높여드릴게요.
 							</p>
 						</div>
@@ -118,28 +120,7 @@ export default function ApplicantMainPage() {
 			<div className='container mx-auto max-w-7xl px-6 lg:px-12 py-10 space-y-12'>
 				{/* 퀵 액션 + 이력서 카드 */}
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
-					{/* 채용 공고 탐색 */}
-					<div
-						className='group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-hs-yellow/30 transition-all cursor-pointer'
-						onClick={() => navigate('/jobs')}
-					>
-						<div className='flex items-start justify-between mb-5'>
-							<div className='w-11 h-11 bg-hs-yellow/15 rounded-xl flex items-center justify-center text-hs-yellow'>
-								<Briefcase size={22} />
-							</div>
-							<ChevronRight
-								size={18}
-								className='text-slate-300 group-hover:text-hs-yellow group-hover:translate-x-0.5 transition-all'
-							/>
-						</div>
-						<h3 className='text-lg font-extrabold text-hs-deep-green mb-1.5'>채용 공고 탐색</h3>
-						<p className='text-sm text-slate-500 leading-relaxed mb-5'>
-							공고에 지원하면 AI가 자동으로 이력서를 분석하고 예상 질문을 만들어드려요.
-						</p>
-						<Button className='w-full font-bold rounded-xl py-5 shadow-sm shadow-hs-yellow/20'>공고 탐색하기</Button>
-					</div>
-
-					{/* 내 이력서 — 상태에 따라 분기 */}
+					<JobExploreCard onExplore={() => navigate('/jobs')} />
 					{MY_RESUME ? (
 						<ResumeStatusCard resume={MY_RESUME} onEdit={() => navigate(`/resumes/${MY_RESUME.id}/edit`)} />
 					) : (
@@ -203,25 +184,117 @@ export default function ApplicantMainPage() {
 	)
 }
 
+/* ── 공통 카드 셸 ── */
+interface ActionCardProps {
+	icon: ReactNode
+	iconTone: 'yellow' | 'deep-green' | 'muted'
+	title: string
+	subtitle?: ReactNode
+	badge?: ReactNode
+	description?: ReactNode
+	children?: ReactNode
+	action: ReactNode
+	dashed?: boolean
+	topAccent?: number
+}
+
+const ICON_TONES = {
+	yellow: 'bg-hs-yellow/15 text-hs-yellow',
+	'deep-green': 'bg-hs-deep-green/8 text-hs-deep-green',
+	muted: 'bg-slate-100 text-slate-400',
+} as const
+
+function ActionCard({
+	icon,
+	iconTone,
+	title,
+	subtitle,
+	badge,
+	description,
+	children,
+	action,
+	dashed = false,
+	topAccent,
+}: ActionCardProps) {
+	return (
+		<div
+			className={cn(
+				'bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col',
+				dashed ? 'border border-dashed border-slate-200' : 'border border-slate-100'
+			)}
+		>
+			{topAccent !== undefined && (
+				<div className='h-1 bg-slate-100'>
+					<div className='h-full bg-hs-yellow transition-all' style={{ width: `${topAccent}%` }} />
+				</div>
+			)}
+
+			<div className='p-6 flex flex-col flex-1'>
+				<div className='flex items-start justify-between mb-4'>
+					<div className={cn('w-11 h-11 rounded-xl flex items-center justify-center', ICON_TONES[iconTone])}>
+						{icon}
+					</div>
+					{badge}
+				</div>
+
+				<h3 className='text-lg font-extrabold text-hs-deep-green mb-0.5'>{title}</h3>
+				{subtitle && <div className='text-xs text-slate-400 font-medium mb-3'>{subtitle}</div>}
+				{description && <p className='text-sm text-slate-500 leading-relaxed mb-4'>{description}</p>}
+
+				{children && <div className='mb-5 flex-1'>{children}</div>}
+				{!children && <div className='flex-1' />}
+
+				{action}
+			</div>
+		</div>
+	)
+}
+
+/* ── 채용 공고 탐색 카드 ── */
+function JobExploreCard({ onExplore }: { onExplore: () => void }) {
+	return (
+		<ActionCard
+			icon={<Briefcase size={22} />}
+			iconTone='yellow'
+			title='채용 공고 탐색'
+			badge={
+				<span className='text-xs font-extrabold text-hs-yellow bg-hs-yellow/10 px-2.5 py-1 rounded-full border border-hs-yellow/20'>
+					오늘 신규 12건
+				</span>
+			}
+			description='공고에 지원하면 AI가 자동으로 이력서를 분석하고 예상 질문을 만들어드려요.'
+			action={
+				<Button className='w-full font-bold rounded-xl py-5 shadow-sm shadow-hs-yellow/20' onClick={onExplore}>
+					공고 탐색하기
+				</Button>
+			}
+		/>
+	)
+}
+
 /* ── 이력서 없음 카드 ── */
 function ResumeEmptyCard({ onCreate }: { onCreate: () => void }) {
 	return (
-		<div className='bg-white rounded-2xl border border-dashed border-slate-200 p-6 shadow-sm flex flex-col'>
-			<div className='flex items-start justify-between mb-5'>
-				<div className='w-11 h-11 bg-hs-deep-green/6 rounded-xl flex items-center justify-center text-hs-deep-green/40'>
-					<FileText size={22} />
-				</div>
-			</div>
-			<h3 className='text-lg font-extrabold text-hs-deep-green mb-1.5'>내 이력서</h3>
-			<p className='text-sm text-slate-400 leading-relaxed mb-5 flex-1'>
-				아직 작성된 이력서가 없어요.
-				<br />
-				이력서는 계정당 1개만 작성할 수 있어요.
-			</p>
-			<Button className='w-full font-bold rounded-xl py-5' onClick={onCreate}>
-				이력서 작성하기
-			</Button>
-		</div>
+		<ActionCard
+			dashed
+			icon={<FileText size={22} />}
+			iconTone='muted'
+			title='내 이력서'
+			badge={<span className='text-xs font-extrabold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full'>미작성</span>}
+			description={
+				<>
+					아직 작성된 이력서가 없어요.
+					<br />
+					지금 이력서를 작성하고 채용 공고에 지원해보세요
+				</>
+			}
+			action={
+				<Button className='w-full font-bold rounded-xl py-5 flex items-center gap-2' onClick={onCreate}>
+					<PenLine size={15} />
+					이력서 작성하기
+				</Button>
+			}
+		/>
 	)
 }
 
@@ -231,52 +304,46 @@ function ResumeStatusCard({ resume, onEdit }: { resume: Resume; onEdit: () => vo
 	const total = resume.sections.length
 
 	return (
-		<div className='bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col'>
-			{/* 완성도 바 */}
-			<div className='h-1 bg-slate-100'>
-				<div className='h-full bg-hs-yellow transition-all' style={{ width: `${resume.completionRate}%` }} />
-			</div>
-
-			<div className='p-6 flex flex-col flex-1'>
-				<div className='flex items-start justify-between mb-4'>
-					<div className='w-11 h-11 bg-hs-deep-green/8 rounded-xl flex items-center justify-center text-hs-deep-green'>
-						<FileText size={22} />
-					</div>
-					<span className='text-xs font-extrabold text-hs-yellow bg-hs-yellow/10 px-2.5 py-1 rounded-full border border-hs-yellow/20'>
-						{resume.completionRate}% 완성
-					</span>
-				</div>
-
-				<h3 className='text-lg font-extrabold text-hs-deep-green mb-0.5'>내 이력서</h3>
-				<div className='flex items-center gap-1 text-xs text-slate-400 font-medium mb-4'>
+		<ActionCard
+			topAccent={resume.completionRate}
+			icon={<FileText size={22} />}
+			iconTone='deep-green'
+			title='내 이력서'
+			subtitle={
+				<span className='flex items-center gap-1'>
 					<Clock size={11} />
 					마지막 수정 {resume.updatedAt}
-				</div>
-
-				{/* 섹션 현황 */}
-				<div className='bg-slate-50 rounded-xl px-4 py-3 mb-5 flex-1'>
-					<p className='text-xs font-bold text-slate-400 mb-2'>
-						섹션 작성 현황 ({done}/{total})
-					</p>
-					<div className='grid grid-cols-2 gap-y-1.5 gap-x-2'>
-						{resume.sections.map(s => (
-							<div key={s.label} className='flex items-center gap-1.5 text-xs font-medium'>
-								{s.done ? (
-									<CheckCircle2 size={13} className='text-hs-green shrink-0' />
-								) : (
-									<div className='w-[13px] h-[13px] rounded-full border-2 border-slate-200 shrink-0' />
-								)}
-								<span className={s.done ? 'text-slate-600' : 'text-slate-400'}>{s.label}</span>
-							</div>
-						))}
-					</div>
-				</div>
-
+				</span>
+			}
+			badge={
+				<span className='text-xs font-extrabold text-hs-yellow bg-hs-yellow/10 px-2.5 py-1 rounded-full border border-hs-yellow/20'>
+					{resume.completionRate}% 완성
+				</span>
+			}
+			action={
 				<Button className='w-full font-bold rounded-xl py-5 flex items-center gap-2' onClick={onEdit}>
 					<PenLine size={15} />
 					이력서 수정하기
 				</Button>
+			}
+		>
+			<div className='bg-slate-50 rounded-xl px-4 py-3'>
+				<p className='text-xs font-bold text-slate-400 mb-2'>
+					섹션 작성 현황 ({done}/{total})
+				</p>
+				<div className='grid grid-cols-2 gap-y-1.5 gap-x-2'>
+					{resume.sections.map(s => (
+						<div key={s.label} className='flex items-center gap-1.5 text-xs font-medium'>
+							{s.done ? (
+								<CheckCircle2 size={13} className='text-hs-green shrink-0' />
+							) : (
+								<div className='w-[13px] h-[13px] rounded-full border-2 border-slate-200 shrink-0' />
+							)}
+							<span className={s.done ? 'text-slate-600' : 'text-slate-400'}>{s.label}</span>
+						</div>
+					))}
+				</div>
 			</div>
-		</div>
+		</ActionCard>
 	)
 }
