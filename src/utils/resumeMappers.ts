@@ -9,9 +9,15 @@ export const toIsoDate = (value: string | undefined): string => {
 	return value
 }
 
-const toProficiency = (value: 'high' | 'mid' | 'low'): 'HIGH' | 'MID' | 'LOW' => value.toUpperCase() as 'HIGH' | 'MID' | 'LOW'
+const toProficiency = (value: 'high' | 'mid' | 'low'): 'HIGH' | 'MEDIUM' | 'LOW' => {
+	if (value === 'mid') return 'MEDIUM'
+	return value.toUpperCase() as 'HIGH' | 'MEDIUM' | 'LOW'
+}
 
-const fromProficiency = (value: string): 'high' | 'mid' | 'low' => value.toLowerCase() as 'high' | 'mid' | 'low'
+const fromProficiency = (value: string): 'high' | 'mid' | 'low' => {
+	if (value === 'MEDIUM') return 'mid'
+	return value.toLowerCase() as 'high' | 'low'
+}
 
 /** 폼 데이터 → API 요청 */
 export const mapResumeToRequest = (form: Resume): RequestCreateResumeDto => ({
