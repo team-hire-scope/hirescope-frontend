@@ -5,36 +5,8 @@ import { Button } from '@/components/common/Button'
 import { PublicJobCard } from '@/components/job/PublicJobCard'
 import { cn } from '@/utils/cn'
 import { useMyResume, type ResumeDisplayData } from '@/hooks/user/useMyResume'
-
-const RECOMMENDED_JOBS = [
-	{
-		id: '1',
-		companyName: '하이어스코프',
-		title: '시니어 프론트엔드 개발자 (React)',
-		location: '서울 강남구',
-		tags: ['React', 'TypeScript', 'Next.js'],
-		deadline: '2024.05.30',
-		isNew: true,
-	},
-	{
-		id: '2',
-		companyName: '테크이노베이터',
-		title: '백엔드 엔지니어 (Python/FastAPI)',
-		location: '서울 서초구',
-		tags: ['Python', 'FastAPI', 'PostgreSQL'],
-		deadline: '상시 채용',
-		isNew: false,
-	},
-	{
-		id: '3',
-		companyName: '디자인랩',
-		title: '프로덕트 디자이너',
-		location: '서울 성동구',
-		tags: ['Figma', 'Prototyping', 'UI/UX'],
-		deadline: '2024.05.15',
-		isNew: true,
-	},
-]
+import { useJobList } from '@/hooks/user/useJobList'
+import { useApply } from '@/hooks/user/useApply'
 
 const STATS = [
 	{ label: '지원한 공고', value: '5', unit: '건', icon: <Briefcase size={18} /> },
@@ -44,9 +16,16 @@ const STATS = [
 export default function ApplicantMainPage() {
 	const navigate = useNavigate()
 	const { isLoading, hasResume, resume } = useMyResume()
+	const { data: jobData, isLoading: isJobsLoading } = useJobList(0, 3)
+	const { mutate: apply } = useApply()
+	const recommendedJobs = jobData?.content ?? []
 
-	const handleApply = (id: string) => {
-		navigate(`/analysis/result/${id}`)
+	const handleApply = (jobPostingId: number) => {
+		if (!resume) {
+			navigate('/resumes/new')
+			return
+		}
+		apply({ resumeId: resume.id, jobPostingId })
 	}
 
 	return (
@@ -115,9 +94,9 @@ export default function ApplicantMainPage() {
 						<div>
 							<h2 className='text-xl font-black text-hs-deep-green flex items-center gap-2.5'>
 								<TrendingUp size={20} className='text-hs-yellow' />
-								실시간 인기 채용 공고
+								최신 채용 공고
 							</h2>
-							<p className='text-sm text-slate-400 mt-0.5 font-medium'>지금 가장 많이 조회된 공고예요</p>
+							<p className='text-sm text-slate-400 mt-0.5 font-medium'>지금 막 올라온 채용 공고예요</p>
 						</div>
 						<button
 							onClick={() => navigate('/jobs')}
@@ -127,11 +106,31 @@ export default function ApplicantMainPage() {
 							<ChevronRight size={16} className='group-hover:translate-x-0.5 transition-transform' />
 						</button>
 					</div>
-					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
-						{RECOMMENDED_JOBS.map(job => (
-							<PublicJobCard key={job.id} {...job} onApply={handleApply} />
-						))}
-					</div>
+
+					{isJobsLoading ? (
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
+							{Array.from({ length: 3 }).map((_, i) => (
+								<div key={i} className='bg-white rounded-3xl p-7 border border-slate-100 h-56 animate-pulse'>
+									<div className='flex gap-3 mb-5'>
+										<div className='w-11 h-11 rounded-2xl bg-slate-100 shrink-0' />
+										<div className='h-4 w-24 rounded bg-slate-100 self-center' />
+									</div>
+									<div className='h-5 w-3/4 rounded bg-slate-100 mb-3' />
+									<div className='h-4 w-1/2 rounded bg-slate-100' />
+								</div>
+							))}
+						</div>
+					) : recommendedJobs.length > 0 ? (
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
+							{recommendedJobs.map(job => (
+								<PublicJobCard key={job.id} job={job} onApply={handleApply} />
+							))}
+						</div>
+					) : (
+						<div className='text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm'>
+							<p className='text-slate-400 font-medium text-sm'>등록된 채용 공고가 없어요</p>
+						</div>
+					)}
 				</section>
 
 				{/* 최근 분석 리포트 */}

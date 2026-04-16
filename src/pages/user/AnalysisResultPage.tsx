@@ -1,63 +1,84 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router'
-import { CheckCircle2, ChevronRight, MessageSquare, ArrowLeft, RefreshCw, Trophy, BrainCircuit } from 'lucide-react'
-import { Badge } from '@/components/common/Badge'
+import { useParams, useNavigate } from 'react-router'
+import { ArrowLeft, BrainCircuit, MessageSquare, Lightbulb, BookOpen, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/common/Button'
-import { LoadingSpinner } from '@/components/common/LoadingSpinner'
-import type { AIAnalysisResult } from '@/types/resume'
-
-// Mock Data
-const MOCK_RESULT: AIAnalysisResult = {
-	id: 'res-123',
-	analysisRequestId: 'req-456',
-	summary:
-		'지원자님의 이력서와 해당 프론트엔드 공고를 분석한 결과, React와 TypeScript 실무 역량이 매우 뛰어남을 확인했습니다. 특히 프로젝트 내의 로딩 성능 최적화 경험이 해당 회사에서 높게 평가받을 것으로 보입니다.',
-	score: 88,
-	questions: [
-		{
-			id: 'q1',
-			category: 'technical',
-			question:
-				'React의 Reconciliation(재조정) 과정에 대해 설명하고, 프로젝트에서 성능 최적화를 위해 어떤 노력을 했는지 말씀해주세요.',
-			intent: 'React의 내부 동작 원리에 대한 깊은 이해도와 실무 최적화 능력을 검증하고자 합니다.',
-		},
-		{
-			id: 'q2',
-			category: 'experience',
-			question: '하이어스코프 프로젝트에서 프론트엔드 리드로서 팀원들과 기술적 충돌이 있었을 때 어떻게 해결하셨나요?',
-			intent: '협업 시 문제 해결 능력과 커뮤니케이션 스타일을 파악하기 위함입니다.',
-		},
-		{
-			id: 'q3',
-			category: 'personality',
-			question: '새로운 기술을 학습할 때 본인만의 속도 조절 방법이나 노하우가 있다면 무엇인가요?',
-			intent: '지속적인 성장 가능성과 학습 태도를 평가하고자 합니다.',
-		},
-		{
-			id: 'q4',
-			category: 'technical',
-			question: 'TypeScript의 제네릭(Generic)을 사용하여 재사용 가능한 컴포넌트를 설계한 구체적인 사례를 들어주세요.',
-			intent: '타입 안정성을 고려한 설계 능력과 추상화 실력을 확인합니다.',
-		},
-	],
-}
+import { useAnalysisResult } from '@/hooks/user/useAnalysisResult'
 
 export default function AnalysisResultPage() {
+	const { analysisId } = useParams<{ analysisId: string }>()
 	const navigate = useNavigate()
-	const [isLoading, setIsLoading] = useState(true)
 
-	// 분석 중임을 연출하기 위한 딜레이
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setIsLoading(false)
-		}, 3000)
-		return () => clearTimeout(timer)
-	}, [])
+	const { data, isLoading, isError } = useAnalysisResult(analysisId ?? '')
 
-	if (isLoading) return <LoadingSpinner />
+	const isPending = !data || data.status === 'PENDING' || data.status === 'PROCESSING'
+
+	if (isLoading || isPending) {
+		return (
+			<div className='w-full max-w-2xl mx-auto py-24 px-6 flex flex-col items-center text-center gap-8'>
+				<div className='relative'>
+					<div className='w-24 h-24 bg-hs-deep-green rounded-[32px] flex items-center justify-center shadow-2xl shadow-hs-deep-green/20'>
+						<BrainCircuit size={40} className='text-hs-yellow' />
+					</div>
+					<div className='absolute -top-1 -right-1 w-6 h-6 bg-hs-yellow rounded-full flex items-center justify-center'>
+						<Loader2 size={14} className='text-hs-deep-green animate-spin' />
+					</div>
+				</div>
+
+				<div className='space-y-3'>
+					<h1 className='text-3xl font-black text-hs-deep-green tracking-tight'>AI가 분석 중이에요</h1>
+					<p className='text-slate-500 font-medium leading-relaxed'>
+						이력서와 채용 공고를 정밀 분석하고 있습니다.
+						<br />
+						잠시만 기다려주세요.
+					</p>
+				</div>
+
+				<div className='w-full bg-hs-cream/60 rounded-3xl p-6 border border-hs-yellow/10 space-y-4'>
+					{['직무 적합도 분석 중', '경력 일관성 검토 중', '면접 예상 질문 생성 중'].map((step, i) => (
+						<div key={i} className='flex items-center gap-3'>
+							<div className='w-5 h-5 rounded-full border-2 border-hs-yellow/30 flex items-center justify-center shrink-0'>
+								<Loader2
+									size={12}
+									className='text-hs-yellow animate-spin'
+									style={{ animationDelay: `${i * 0.3}s` }}
+								/>
+							</div>
+							<span className='text-sm font-medium text-slate-500'>{step}</span>
+						</div>
+					))}
+				</div>
+
+				<p className='text-xs text-slate-400 font-medium'>
+					분석이 완료되면 자동으로 결과가 표시됩니다. (30초마다 자동 갱신)
+				</p>
+
+				<Button variant='secondary' className='rounded-full gap-2' onClick={() => navigate('/jobs')}>
+					<ArrowLeft size={16} />
+					공고 목록으로 돌아가기
+				</Button>
+			</div>
+		)
+	}
+
+	if (isError || data.status === 'FAILED') {
+		return (
+			<div className='w-full max-w-2xl mx-auto py-24 px-6 flex flex-col items-center text-center gap-6'>
+				<div className='w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center'>
+					<AlertCircle size={36} className='text-red-400' />
+				</div>
+				<div className='space-y-2'>
+					<h1 className='text-2xl font-black text-hs-deep-green'>분석에 실패했습니다</h1>
+					<p className='text-slate-500 font-medium'>잠시 후 다시 시도해주세요.</p>
+				</div>
+				<Button variant='secondary' className='rounded-full gap-2' onClick={() => navigate('/jobs')}>
+					<ArrowLeft size={16} />
+					공고 목록으로 돌아가기
+				</Button>
+			</div>
+		)
+	}
 
 	return (
-		<div className='w-full max-w-5xl mx-auto py-12 px-6 space-y-12 animate-in fade-in duration-700'>
+		<div className='w-full max-w-4xl mx-auto py-12 px-6 space-y-10 animate-in fade-in duration-700'>
 			{/* 상단 네비게이션 */}
 			<button
 				onClick={() => navigate('/jobs')}
@@ -67,132 +88,89 @@ export default function AnalysisResultPage() {
 				공고 목록으로 돌아가기
 			</button>
 
-			{/* 헤더 분석 리포트 요약 */}
+			{/* 헤더 */}
 			<section className='bg-hs-deep-green text-white rounded-[40px] p-10 lg:p-14 shadow-2xl relative overflow-hidden'>
-				<div className='absolute right-[-10%] top-[-20%] w-[400px] h-[400px] bg-hs-yellow/10 rounded-full blur-[100px]' />
-
-				<div className='relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-12 items-center'>
-					<div className='lg:col-span-3 space-y-6'>
-						<div className='inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-hs-yellow font-bold text-sm'>
-							<BrainCircuit size={18} />
-							AI 커리어 컨설팅 분석 결과
-						</div>
-						<h1 className='text-4xl font-black tracking-tight leading-tight'>
-							이력서 분석 결과 <br />
-							합격 확률{' '}
-							<span className='text-hs-yellow underline decoration-4 underline-offset-8'>
-								{MOCK_RESULT.score}%
-							</span>{' '}
-							입니다!
-						</h1>
-						<p className='text-lg text-white/80 leading-relaxed font-medium'>{MOCK_RESULT.summary}</p>
+				<div className='absolute right-[-10%] top-[-20%] w-96 h-96 bg-hs-yellow/10 rounded-full blur-[100px] pointer-events-none' />
+				<div className='relative z-10 space-y-5'>
+					<div className='inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-hs-yellow font-bold text-sm'>
+						<BrainCircuit size={16} />
+						AI 면접 질문 분석 완료
 					</div>
-					<div className='flex flex-col items-center justify-center p-8 bg-white/10 rounded-[32px] border border-white/10'>
-						<div className='relative flex items-center justify-center h-32 w-32'>
-							<svg className='h-full w-full' viewBox='0 0 100 100'>
-								<circle
-									className='text-white/20'
-									strokeWidth='8'
-									stroke='currentColor'
-									fill='transparent'
-									r='42'
-									cx='50'
-									cy='50'
-								/>
-								<circle
-									className='text-hs-yellow'
-									strokeWidth='8'
-									strokeDasharray={42 * 2 * Math.PI}
-									strokeDashoffset={42 * 2 * Math.PI * (1 - (MOCK_RESULT.score || 0) / 100)}
-									strokeLinecap='round'
-									stroke='currentColor'
-									fill='transparent'
-									r='42'
-									cx='50'
-									cy='50'
-								/>
-							</svg>
-							<div className='absolute inset-0 flex items-center justify-center'>
-								<span className='text-3xl font-black'>{MOCK_RESULT.score}</span>
-							</div>
-						</div>
-						<p className='mt-4 font-bold text-white/60'>AI 예상 점수</p>
-					</div>
+					<h1 className='text-3xl lg:text-4xl font-black tracking-tight leading-tight'>
+						맞춤형 면접 질문을 <br />
+						<span className='text-hs-yellow'>준비했어요</span>
+					</h1>
+					{data.summary && (
+						<p className='text-white/75 text-base font-medium leading-relaxed max-w-2xl'>{data.summary}</p>
+					)}
 				</div>
 			</section>
 
-			{/* 예상 면접 질문 리스트 */}
-			<section className='space-y-8'>
-				<div className='flex items-center justify-between'>
-					<h2 className='text-2xl font-black text-hs-deep-green flex items-center gap-3'>
-						<MessageSquare className='text-hs-yellow' />
-						맞춤형 예상 면접 질문
-					</h2>
-					<Button variant='secondary' className='rounded-full gap-2 border-slate-200'>
-						<RefreshCw size={16} />
-						질문 다시 생성
-					</Button>
-				</div>
+			{/* 면접 질문 리스트 */}
+			<section className='space-y-6'>
+				<h2 className='text-2xl font-black text-hs-deep-green flex items-center gap-3'>
+					<MessageSquare className='text-hs-yellow' size={24} />
+					예상 면접 질문 ({data.interviewQuestions.length}개)
+				</h2>
 
-				<div className='grid grid-cols-1 gap-6'>
-					{MOCK_RESULT.questions.map((q, idx) => (
+				<div className='grid grid-cols-1 gap-5'>
+					{data.interviewQuestions.map((q, idx) => (
 						<div
-							key={q.id}
-							className='group bg-white rounded-3xl p-8 border border-hs-yellow/10 transition-all hover:border-hs-yellow/40 hover:shadow-xl'
+							key={idx}
+							className='group bg-white rounded-3xl border border-slate-100 overflow-hidden transition-all hover:border-hs-yellow/30 hover:shadow-xl hover:shadow-hs-deep-green/5'
 						>
-							<div className='flex items-start gap-6'>
-								<div className='flex items-center justify-center h-12 w-12 bg-hs-cream rounded-2xl text-hs-deep-green font-black text-xl shrink-0'>
+							{/* 질문 헤더 */}
+							<div className='flex items-start gap-5 p-8 pb-5'>
+								<div className='w-11 h-11 bg-hs-deep-green rounded-2xl flex items-center justify-center shrink-0 text-hs-yellow font-black text-base'>
 									{idx + 1}
 								</div>
-								<div className='space-y-4 flex-1'>
-									<div className='flex items-center justify-between'>
-										<Badge
-											variant={
-												q.category === 'technical'
-													? 'success'
-													: q.category === 'experience'
-														? 'warning'
-														: 'info'
-											}
-											className='px-4 py-1.5'
-										>
-											{q.category === 'technical'
-												? '직무 역량'
-												: q.category === 'experience'
-													? '경험/협업'
-													: '인성/태도'}
-										</Badge>
-									</div>
-									<h4 className='text-xl font-bold text-hs-deep-green leading-snug'>{q.question}</h4>
-									{q.intent && (
-										<div className='bg-slate-50 rounded-2xl p-5 border border-slate-100'>
-											<p className='text-sm text-slate-500 font-medium flex items-center gap-2'>
-												<CheckCircle2 size={16} className='text-hs-green' />
-												출제 의도: {q.intent}
-											</p>
-										</div>
-									)}
-								</div>
-								<button className='self-center p-3 rounded-full bg-slate-50 text-slate-400 group-hover:bg-hs-yellow group-hover:text-hs-deep-green transition-all'>
-									<ChevronRight size={24} />
-								</button>
+								<h3 className='text-lg font-bold text-hs-deep-green leading-snug pt-1.5'>{q.question}</h3>
 							</div>
+
+							{/* 출제 의도 */}
+							{q.intent && (
+								<div className='mx-8 mb-4 bg-slate-50 rounded-2xl px-5 py-4 flex items-start gap-3 border border-slate-100'>
+									<Lightbulb size={16} className='text-hs-yellow shrink-0 mt-0.5' />
+									<div>
+										<p className='text-xs font-black text-slate-400 uppercase tracking-wider mb-1'>
+											출제 의도
+										</p>
+										<p className='text-sm text-slate-600 font-medium leading-relaxed'>{q.intent}</p>
+									</div>
+								</div>
+							)}
+
+							{/* 답변 가이드 */}
+							{q.answer_guide && (
+								<div className='mx-8 mb-8 bg-hs-cream/50 rounded-2xl px-5 py-4 flex items-start gap-3 border border-hs-yellow/10'>
+									<BookOpen size={16} className='text-hs-deep-green/60 shrink-0 mt-0.5' />
+									<div>
+										<p className='text-xs font-black text-hs-deep-green/40 uppercase tracking-wider mb-1'>
+											답변 가이드
+										</p>
+										<p className='text-sm text-slate-600 font-medium leading-relaxed'>{q.answer_guide}</p>
+									</div>
+								</div>
+							)}
 						</div>
 					))}
 				</div>
 			</section>
 
 			{/* 하단 배너 */}
-			<section className='bg-hs-cream/30 rounded-[40px] p-12 flex flex-col items-center text-center space-y-6 border border-hs-yellow/10'>
-				<div className='w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl mb-2'>
-					<Trophy size={40} className='text-hs-yellow' />
+			<section className='bg-hs-cream/40 rounded-[40px] p-10 flex flex-col items-center text-center space-y-4 border border-hs-yellow/10'>
+				<div className='w-16 h-16 bg-hs-deep-green rounded-3xl flex items-center justify-center shadow-xl mb-1'>
+					<MessageSquare size={28} className='text-hs-yellow' />
 				</div>
-				<h3 className='text-2xl font-black text-hs-deep-green'>면접 준비를 모두 마치셨나요?</h3>
-				<p className='text-slate-500 font-medium max-w-lg'>
-					예상 질문에 대한 본인만의 답변을 작성하고 연습해보세요. <br />
-					하이어스코프가 지원자님의 성공적인 이직을 응원합니다!
+				<h3 className='text-xl font-black text-hs-deep-green'>면접 준비를 시작해보세요</h3>
+				<p className='text-slate-500 font-medium max-w-sm text-sm leading-relaxed'>
+					위 질문들을 참고해 본인만의 답변을 준비해보세요.
+					<br />
+					하이어스코프가 응원합니다!
 				</p>
-				<Button className='px-12 py-5 rounded-full font-black text-lg'>실전 면접 연습하기</Button>
+				<Button className='px-10 py-4 rounded-full font-black mt-2' onClick={() => navigate('/applicant-main')}>
+					메인으로 돌아가기
+				</Button>
 			</section>
 		</div>
 	)

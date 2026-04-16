@@ -1,93 +1,52 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Sparkles, Building2 } from 'lucide-react'
+import { Sparkles, Building2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { JobFilterBar } from '@/components/job/JobFilterBar'
 import { PublicJobCard } from '@/components/job/PublicJobCard'
+import { useJobList } from '@/hooks/user/useJobList'
+import { useMyResume } from '@/hooks/user/useMyResume'
+import { useApply } from '@/hooks/user/useApply'
 
-const CATEGORIES = [
-	{ id: 'all', label: '전체' },
-	{ id: 'frontend', label: '프론트엔드' },
-	{ id: 'backend', label: '백엔드' },
-	{ id: 'design', label: '디자인' },
-	{ id: 'pm', label: '기획/PM' },
-	{ id: 'data', label: '데이터' },
-]
-
-const MOCK_JOBS = [
-	{
-		id: '1',
-		companyName: '하이어스코프',
-		title: '시니어 프론트엔드 개발자 (React)',
-		location: '서울 강남구',
-		category: 'frontend',
-		tags: ['React', 'TypeScript', 'Next.js'],
-		deadline: '2024.05.30',
-		isNew: true,
-	},
-	{
-		id: '2',
-		companyName: '테크이노베이터',
-		title: '백엔드 엔지니어 (Python/FastAPI)',
-		location: '서울 서초구',
-		category: 'backend',
-		tags: ['Python', 'FastAPI', 'PostgreSQL'],
-		deadline: '상시 채용',
-		isNew: false,
-	},
-	{
-		id: '3',
-		companyName: '디자인랩',
-		title: '프로덕트 디자이너',
-		location: '서울 성동구',
-		category: 'design',
-		tags: ['Figma', 'Prototyping', 'UI/UX'],
-		deadline: '2024.05.15',
-		isNew: true,
-	},
-	{
-		id: '4',
-		companyName: '데이터마인드',
-		title: '데이터 사이언티스트',
-		location: '서울 송파구',
-		category: 'data',
-		tags: ['Python', 'PyTorch', 'MLOps'],
-		deadline: '2024.06.10',
-		isNew: false,
-	},
-	{
-		id: '5',
-		companyName: '플랜잇',
-		title: '서비스 기획자 (PM)',
-		location: '판교역 인근',
-		category: 'pm',
-		tags: ['Jira', 'Confluence', 'Agile'],
-		deadline: '2024.05.20',
-		isNew: false,
-	},
-]
+const PAGE_SIZE = 9
 
 export default function JobListPage() {
 	const navigate = useNavigate()
-	const [selectedCategory, setSelectedCategory] = useState('all')
+	const [page, setPage] = useState(0)
 	const [searchQuery, setSearchQuery] = useState('')
 
-	const handleApply = (id: string) => {
-		navigate(`/analysis/result/${id}`)
+	const { data, isLoading } = useJobList(page, PAGE_SIZE)
+	const { resume } = useMyResume()
+	const { mutate: apply } = useApply()
+
+	const jobs = data?.content ?? []
+	const totalPages = data?.totalPages ?? 0
+	const totalElements = data?.totalElements ?? 0
+
+	const filteredJobs = searchQuery
+		? jobs.filter(
+				job =>
+					job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+					job.companyName.toLowerCase().includes(searchQuery.toLowerCase())
+			)
+		: jobs
+
+	const handleApply = (jobPostingId: number) => {
+		if (!resume) {
+			navigate('/resumes/new')
+			return
+		}
+		apply({ resumeId: resume.id, jobPostingId })
 	}
 
-	const filteredJobs = MOCK_JOBS.filter(job => {
-		const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory
-		const matchesSearch =
-			job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			job.companyName.toLowerCase().includes(searchQuery.toLowerCase())
-		return matchesCategory && matchesSearch
-	})
+	const handleSearchChange = (query: string) => {
+		setSearchQuery(query)
+		setPage(0)
+	}
 
 	return (
 		<div className='w-full max-w-7xl mx-auto pb-24'>
 			{/* 히어로 섹션 */}
 			<div className='relative overflow-hidden rounded-[40px] bg-hs-deep-green mx-6 mt-8 px-10 py-14 mb-12'>
-				{/* 배경 장식 */}
 				<div className='absolute top-0 right-0 w-96 h-96 bg-hs-yellow/5 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none' />
 				<div className='absolute bottom-0 left-20 w-64 h-64 bg-white/3 rounded-full translate-y-1/2 pointer-events-none' />
 
@@ -104,38 +63,54 @@ export default function JobListPage() {
 			</div>
 
 			<div className='px-6'>
-				{/* 검색 및 필터 */}
+				{/* 검색 필터 */}
 				<JobFilterBar
-					categories={CATEGORIES}
-					selectedCategory={selectedCategory}
-					onSelectCategory={setSelectedCategory}
+					categories={[]}
+					selectedCategory='all'
+					onSelectCategory={() => {}}
 					searchQuery={searchQuery}
-					onSearchChange={setSearchQuery}
+					onSearchChange={handleSearchChange}
 				/>
 
 				{/* 결과 카운트 */}
 				<div className='flex items-center justify-between mb-8'>
 					<p className='text-slate-500 font-medium'>
-						<span className='text-hs-deep-green font-black text-lg'>{filteredJobs.length}</span>개의 공고
+						{isLoading ? (
+							<span className='text-slate-300'>불러오는 중...</span>
+						) : (
+							<>
+								<span className='text-hs-deep-green font-black text-lg'>{totalElements}</span>개의 공고
+							</>
+						)}
 					</p>
-					{(searchQuery || selectedCategory !== 'all') && (
+					{searchQuery && (
 						<button
-							onClick={() => {
-								setSearchQuery('')
-								setSelectedCategory('all')
-							}}
+							onClick={() => handleSearchChange('')}
 							className='text-sm text-slate-400 font-bold hover:text-hs-deep-green transition-colors underline underline-offset-4'
 						>
-							필터 초기화
+							검색 초기화
 						</button>
 					)}
 				</div>
 
 				{/* 공고 그리드 */}
-				{filteredJobs.length > 0 ? (
+				{isLoading ? (
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+						{Array.from({ length: PAGE_SIZE }).map((_, i) => (
+							<div key={i} className='bg-white rounded-3xl p-7 border border-slate-100 h-64 animate-pulse'>
+								<div className='flex gap-3 mb-5'>
+									<div className='w-11 h-11 rounded-2xl bg-slate-100 shrink-0' />
+									<div className='h-4 w-28 rounded bg-slate-100 self-center' />
+								</div>
+								<div className='h-5 w-3/4 rounded bg-slate-100 mb-3' />
+								<div className='h-4 w-1/2 rounded bg-slate-100' />
+							</div>
+						))}
+					</div>
+				) : filteredJobs.length > 0 ? (
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
 						{filteredJobs.map(job => (
-							<PublicJobCard key={job.id} {...job} onApply={handleApply} />
+							<PublicJobCard key={job.id} job={job} onApply={handleApply} />
 						))}
 					</div>
 				) : (
@@ -144,15 +119,49 @@ export default function JobListPage() {
 							<Building2 size={28} className='text-hs-deep-green/30' />
 						</div>
 						<p className='text-xl font-black text-slate-300'>검색 결과가 없습니다</p>
-						<p className='text-slate-400 font-medium mt-1 text-sm'>다른 키워드나 카테고리로 시도해보세요</p>
+						<p className='text-slate-400 font-medium mt-1 text-sm'>다른 키워드로 시도해보세요</p>
 						<button
-							onClick={() => {
-								setSearchQuery('')
-								setSelectedCategory('all')
-							}}
+							onClick={() => handleSearchChange('')}
 							className='mt-6 px-6 py-3 bg-hs-deep-green text-white font-bold rounded-full text-sm hover:bg-hs-deep-green/90 transition-colors'
 						>
 							전체 공고 보기
+						</button>
+					</div>
+				)}
+
+				{/* 페이지네이션 */}
+				{!isLoading && totalPages > 1 && (
+					<div className='flex items-center justify-center gap-3 mt-14'>
+						<button
+							onClick={() => setPage(p => p - 1)}
+							disabled={page === 0}
+							className='w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 text-slate-400 hover:border-hs-yellow/40 hover:text-hs-deep-green transition-all disabled:opacity-30 disabled:pointer-events-none'
+						>
+							<ChevronLeft size={18} />
+						</button>
+
+						<div className='flex gap-1.5'>
+							{Array.from({ length: totalPages }).map((_, i) => (
+								<button
+									key={i}
+									onClick={() => setPage(i)}
+									className={`w-10 h-10 rounded-full text-sm font-bold transition-all ${
+										i === page
+											? 'bg-hs-deep-green text-white shadow-lg shadow-hs-deep-green/25'
+											: 'text-slate-400 hover:bg-hs-cream hover:text-hs-deep-green'
+									}`}
+								>
+									{i + 1}
+								</button>
+							))}
+						</div>
+
+						<button
+							onClick={() => setPage(p => p + 1)}
+							disabled={page === totalPages - 1}
+							className='w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 text-slate-400 hover:border-hs-yellow/40 hover:text-hs-deep-green transition-all disabled:opacity-30 disabled:pointer-events-none'
+						>
+							<ChevronRight size={18} />
 						</button>
 					</div>
 				)}
