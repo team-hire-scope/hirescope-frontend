@@ -1,6 +1,5 @@
 import { Button } from '../../common/Button'
-import { StatusSelect } from '../common/statusSelect'
-import { useState } from 'react'
+import { Badge } from '../../common/Badge'
 
 export interface CandidateRow {
 	id: string
@@ -11,7 +10,7 @@ export interface CandidateRow {
 	stackScore: number
 	achievementScore: number
 	docScore: number
-	status: '검토중' | '서류 통과' | '면접 예정' | '탈락'
+	status: string
 	appliedAt: string
 	summary?: string
 }
@@ -19,12 +18,16 @@ export interface CandidateRow {
 interface CandidateTableProps {
 	candidates: CandidateRow[]
 	onNameClick?: (candidate: CandidateRow) => void
-	onStatusChange?: (candidateId: string, status: CandidateRow['status']) => void
 }
 
-export const CandidateTable = ({ candidates, onNameClick, onStatusChange }: CandidateTableProps) => {
-	const [statusOverrideById, setStatusOverrideById] = useState<Record<string, CandidateRow['status']>>({})
+const statusVariant = (status: string): 'default' | 'success' | 'warning' | 'danger' => {
+	if (status === 'COMPLETED' || status === '서류 통과') return 'success'
+	if (status === 'PROCESSING' || status === '면접 예정') return 'warning'
+	if (status === 'FAILED' || status === '탈락') return 'danger'
+	return 'default'
+}
 
+export const CandidateTable = ({ candidates, onNameClick }: CandidateTableProps) => {
 	// 요약 리포트 컬럼은 데이터에 summary가 있을 때만 노출
 	const hasSummary = candidates.some(candidate => Boolean(candidate.summary))
 
@@ -69,21 +72,7 @@ export const CandidateTable = ({ candidates, onNameClick, onStatusChange }: Cand
 								</div>
 							</td>
 							<td className='px-4 py-3'>
-								<StatusSelect
-									value={statusOverrideById[candidate.id] ?? candidate.status}
-									options={[
-										{ value: '검토중', label: '검토중' },
-										{ value: '서류 통과', label: '서류 통과' },
-										{ value: '면접 예정', label: '면접 예정' },
-										{ value: '탈락', label: '탈락' },
-									]}
-									onChange={val => {
-										const nextStatus = val as CandidateRow['status']
-										setStatusOverrideById(prev => ({ ...prev, [candidate.id]: nextStatus }))
-										onStatusChange?.(candidate.id, nextStatus)
-									}}
-									className='min-w-40'
-								/>
+								<Badge variant={statusVariant(candidate.status)}>{candidate.status}</Badge>
 							</td>
 							{hasSummary && <td className='px-4 py-3 text-black'>{candidate.summary}</td>}
 							<td className='px-4 py-3 text-black'>{candidate.appliedAt}</td>

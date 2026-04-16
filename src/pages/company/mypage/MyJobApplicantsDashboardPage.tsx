@@ -1,79 +1,30 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { FilterBar } from '../../../components/company/candidate/FilterBar'
 import { SortDropdown } from '../../../components/company/candidate/SortDropdown'
 import { CandidateTable, type CandidateRow } from '../../../components/company/candidate/CandidateTable'
 import { Button } from '../../../components/common/Button'
-
-interface WeightedCandidate {
-	id: string
-	name: string
-	status: '검토중' | '서류 통과' | '면접 예정' | '탈락'
-	appliedAt: string
-	totalScore: number
-	fitScore: number
-	careerScore: number
-	stackScore: number
-	achievementScore: number
-	docScore: number
-	summary: string
-}
-
-const initialWeightedCandidates: WeightedCandidate[] = [
-	{
-		id: 'c1',
-		name: '김지원',
-		status: '서류 통과',
-		appliedAt: '2026-04-11',
-		totalScore: 91,
-		fitScore: 92,
-		careerScore: 88,
-		stackScore: 94,
-		achievementScore: 90,
-		docScore: 89,
-		summary: '프론트엔드 실무 4년, React 성능 개선 경험과 협업 커뮤니케이션이 우수함.',
-	},
-	{
-		id: 'c2',
-		name: '이서준',
-		status: '검토중',
-		appliedAt: '2026-04-13',
-		totalScore: 83,
-		fitScore: 84,
-		careerScore: 80,
-		stackScore: 86,
-		achievementScore: 81,
-		docScore: 82,
-		summary: '기술 스택은 우수하나 프로젝트 임팩트 정량화가 상대적으로 부족함.',
-	},
-	{
-		id: 'c3',
-		name: '박민아',
-		status: '면접 예정',
-		appliedAt: '2026-04-10',
-		totalScore: 88,
-		fitScore: 90,
-		careerScore: 85,
-		stackScore: 89,
-		achievementScore: 87,
-		docScore: 88,
-		summary: '도메인 적합도가 높고 포트폴리오 문서 품질이 좋아 면접 후보로 적합함.',
-	},
-]
+import { useJobApplicants } from '../../../hooks/company/useJobApplicants'
+import type { JobApplicantRow } from '../../../types/jobApplicants'
+import { Input } from '../../../components/common/Input'
+import { Select } from '../../../components/common/Select'
 
 const MyJobApplicantsDashboardPage = () => {
 	const { jobId } = useParams()
 	const navigate = useNavigate()
-	const [status, setStatus] = useState<'all' | '검토중' | '서류 통과' | '면접 예정' | '탈락'>('all')
+	const [status, setStatus] = useState<'all' | JobApplicantRow['status']>('all')
 	const [scoreBand, setScoreBand] = useState<'all' | '90+' | '80-89' | 'under-80'>('all')
 	const [keyword, setKeyword] = useState('')
 	const [sortBy, setSortBy] = useState<'score-desc' | 'score-asc' | 'latest'>('score-desc')
-	const [weightedCandidates, setWeightedCandidates] = useState<WeightedCandidate[]>(initialWeightedCandidates)
+	const { data: applicantPage, isFetching } = useJobApplicants(jobId ?? '', {
+		page: 0,
+		size: 10,
+		status: status === 'all' ? undefined : status,
+	})
 
 	const visibleCandidates = useMemo(() => {
-		const filtered = weightedCandidates.filter(candidate => {
+		const filtered = (applicantPage?.content ?? []).filter(candidate => {
 			const isStatusMatch = status === 'all' || candidate.status === status
-			const isKeywordMatch = candidate.name.includes(keyword.trim())
+			const isKeywordMatch = candidate.applicantName.includes(keyword.trim())
 			const isScoreBandMatch =
 				scoreBand === 'all' ||
 				(scoreBand === '90+' && candidate.totalScore >= 90) ||
@@ -83,28 +34,86 @@ const MyJobApplicantsDashboardPage = () => {
 			return isStatusMatch && isKeywordMatch && isScoreBandMatch
 		})
 
-		return [...filtered].sort((a, b) => {
-			if (sortBy === 'score-desc') return b.totalScore - a.totalScore
-			if (sortBy === 'score-asc') return a.totalScore - b.totalScore
-			return new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
-		})
-	}, [keyword, scoreBand, sortBy, status, weightedCandidates])
+		return [...filtered]
+			.sort((a, b) => {
+				if (sortBy === 'score-desc') return b.totalScore - a.totalScore
+				if (sortBy === 'score-asc') return a.totalScore - b.totalScore
+				return new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
+			})
+			.map(
+				candidate =>
+					({
+						id: String(candidate.applicationId),
+						name: candidate.applicantName,
+						score: Math.round(candidate.totalScore),
+						fitScore: Math.round(candidate.scoreJobFit),
+						careerScore: Math.round(candidate.scoreCareerConsistency),
+						stackScore: Math.round(candidate.scoreSkillMatch),
+						achievementScore: Math.round(candidate.scoreQuantitativeAchievement),
+						docScore: Math.round(candidate.scoreDocumentQuality),
+						status: candidate.status,
+						appliedAt: new Date(candidate.appliedAt).toISOString().slice(0, 10),
+					}) satisfies CandidateRow
+			)
+	}, [applicantPage?.content, keyword, scoreBand, sortBy, status])
 
 	return (
 		<section className='space-y-6'>
 			<div>
 				<h2 className='text-2xl font-semibold text-hs-deep-green'>공고별 지원자 대시보드</h2>
-				<p className='mt-1 text-sm text-black'>공고 ID: {jobId} · HR 가중치 반영 총점 기준 정렬/필터링</p>
+				<p className='mt-1 text-sm text-black'>
+					공고 ID: {jobId} · 총 {applicantPage?.totalElements ?? 0}명 · 페이지 {(applicantPage?.number ?? 0) + 1}/
+					{applicantPage?.totalPages ?? 0}
+				</p>
+				{isFetching && <p className='mt-1 text-xs text-black/60'>불러오는 중...</p>}
 			</div>
 
-			<FilterBar
-				status={status}
-				scoreBand={scoreBand}
-				keyword={keyword}
-				onStatusChange={setStatus}
-				onScoreBandChange={setScoreBand}
-				onKeywordChange={setKeyword}
-			/>
+			<div className='grid w-full grid-cols-3 gap-3 rounded-xl border border-hs-cream bg-white p-4'>
+				<div>
+					<label htmlFor='status-filter' className='mb-1 block text-sm font-medium text-hs-deep-green'>
+						상태 필터
+					</label>
+					<Select
+						id='status-filter'
+						value={status}
+						options={[
+							{ value: 'all', label: '전체' },
+							{ value: 'PENDING', label: 'PENDING' },
+							{ value: 'PROCESSING', label: 'PROCESSING' },
+							{ value: 'COMPLETED', label: 'COMPLETED' },
+							{ value: 'FAILED', label: 'FAILED' },
+						]}
+						onChange={val => setStatus(val as typeof status)}
+					/>
+				</div>
+				<div>
+					<label htmlFor='score-filter' className='mb-1 block text-sm font-medium text-hs-deep-green'>
+						점수 구간
+					</label>
+					<Select
+						id='score-filter'
+						value={scoreBand}
+						options={[
+							{ value: 'all', label: '전체 점수' },
+							{ value: '90+', label: '90점 이상' },
+							{ value: '80-89', label: '80-89점' },
+							{ value: 'under-80', label: '80점 미만' },
+						]}
+						onChange={val => setScoreBand(val as typeof scoreBand)}
+					/>
+				</div>
+				<div>
+					<label htmlFor='keyword-filter' className='mb-1 block text-sm font-medium text-hs-deep-green'>
+						이름 검색
+					</label>
+					<Input
+						id='keyword-filter'
+						value={keyword}
+						onChange={event => setKeyword(event.target.value)}
+						placeholder='지원자 이름 입력'
+					/>
+				</div>
+			</div>
 			<div className='flex items-center justify-between'>
 				<Link to={jobId ? `/com-mypage/jobs/${jobId}` : '/com-mypage/jobs'}>
 					<Button variant='secondary'>공고글 보러가기</Button>
@@ -113,31 +122,10 @@ const MyJobApplicantsDashboardPage = () => {
 			</div>
 
 			<CandidateTable
-				candidates={visibleCandidates.map(
-					candidate =>
-						({
-							id: candidate.id,
-							name: candidate.name,
-							score: candidate.totalScore,
-							fitScore: candidate.fitScore,
-							careerScore: candidate.careerScore,
-							stackScore: candidate.stackScore,
-							achievementScore: candidate.achievementScore,
-							docScore: candidate.docScore,
-							status: candidate.status,
-							appliedAt: candidate.appliedAt,
-							summary: candidate.summary,
-						}) satisfies CandidateRow
-				)}
+				candidates={visibleCandidates}
 				onNameClick={candidate => {
 					if (!jobId) return
 					navigate(`/com-mypage/jobs/${jobId}/${candidate.id}`)
-				}}
-				onStatusChange={(candidateId, nextStatus) => {
-					setStatus(prev => (prev === 'all' ? prev : 'all'))
-					setWeightedCandidates(prev =>
-						prev.map(candidate => (candidate.id === candidateId ? { ...candidate, status: nextStatus } : candidate))
-					)
 				}}
 			/>
 		</section>

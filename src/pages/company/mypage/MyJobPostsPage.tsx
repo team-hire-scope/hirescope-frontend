@@ -1,13 +1,19 @@
 import { Link } from 'react-router'
 import { Button } from '../../../components/common/Button'
 import { Badge } from '../../../components/common/Badge'
+import { useJobPosts } from '../../../hooks/company/useJobPosts'
 
-const myJobs = [
-	{ id: '1', title: '프론트엔드 개발자', status: '진행중', applicants: 42 },
-	{ id: '2', title: '백엔드 개발자', status: '검토중', applicants: 28 },
-]
+const formatDate = (value: string) =>
+	new Intl.DateTimeFormat('ko-KR', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+	}).format(new Date(value))
 
 const MyJobPostsPage = () => {
+	const { data: jobPosts, isFetching } = useJobPosts({ page: 0, size: 10 })
+	const content = jobPosts?.content ?? []
+
 	return (
 		<section className='space-y-4'>
 			<div className='flex items-center justify-between'>
@@ -23,20 +29,80 @@ const MyJobPostsPage = () => {
 				</Link>
 			</div>
 
+			<div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+				<div className='rounded-xl border border-hs-cream bg-white p-4 shadow-sm'>
+					<p className='text-sm text-hs-deep-green'>전체 공고 수</p>
+					<p className='mt-1 text-2xl font-semibold text-black'>{jobPosts?.totalElements ?? 0}</p>
+				</div>
+				<div className='rounded-xl border border-hs-cream bg-white p-4 shadow-sm'>
+					<p className='text-sm text-hs-deep-green'>현재 페이지</p>
+					<p className='mt-1 text-2xl font-semibold text-black'>
+						{(jobPosts?.number ?? 0) + 1} / {jobPosts?.totalPages ?? 0}
+					</p>
+				</div>
+				<div className='rounded-xl border border-hs-cream bg-white p-4 shadow-sm'>
+					<p className='text-sm text-hs-deep-green'>페이지당 개수</p>
+					<p className='mt-1 text-2xl font-semibold text-black'>{jobPosts?.size ?? 0}</p>
+				</div>
+			</div>
+
+			{isFetching && <p className='text-xs text-black/60'>불러오는 중...</p>}
+
 			<div className='space-y-3'>
-				{myJobs.map(job => (
+				{content.map(job => (
 					<Link
 						key={job.id}
 						to={`/com-mypage/jobs/${job.id}`}
 						className='block rounded-xl border border-hs-cream bg-white p-4 shadow-sm transition hover:border-hs-yellow'
 					>
-						<div className='mb-1 flex items-center justify-between'>
-							<h3 className='text-base font-semibold text-black'>{job.title}</h3>
-							<Badge variant={job.status === '진행중' ? 'success' : 'default'}>{job.status}</Badge>
+						<div className='mb-3 flex items-start justify-between gap-3'>
+							<div>
+								<h3 className='text-base font-semibold text-black'>{job.jobTitle}</h3>
+								<p className='mt-1 text-sm text-black'>{job.companyName}</p>
+							</div>
+							<div className='text-right text-sm text-black'>
+								<p>등록일 {formatDate(job.createdAt)}</p>
+								<p className='mt-1 text-black/60'>수정일 {formatDate(job.updatedAt)}</p>
+							</div>
 						</div>
-						<p className='text-sm text-black'>지원자 수 {job.applicants}명</p>
+
+						<p className='text-sm leading-6 text-black'>{job.jobDescription}</p>
+
+						<div className='mt-3 flex flex-wrap gap-2'>
+							<Badge className='bg-hs-yellow/30 text-hs-deep-green'>필수 {job.requiredSkills}</Badge>
+							<Badge className='bg-hs-green/20 text-hs-deep-green'>우대 {job.preferredQualifications}</Badge>
+						</div>
+
+						<div className='mt-4 grid grid-cols-2 gap-2 text-sm md:grid-cols-5'>
+							<div className='rounded-md bg-hs-cream/40 px-3 py-2'>
+								<p className='text-hs-deep-green'>직무적합</p>
+								<p className='font-semibold text-black'>{job.weightJobFit}</p>
+							</div>
+							<div className='rounded-md bg-hs-cream/40 px-3 py-2'>
+								<p className='text-hs-deep-green'>경력일관</p>
+								<p className='font-semibold text-black'>{job.weightCareerConsistency}</p>
+							</div>
+							<div className='rounded-md bg-hs-cream/40 px-3 py-2'>
+								<p className='text-hs-deep-green'>기술매칭</p>
+								<p className='font-semibold text-black'>{job.weightSkillMatch}</p>
+							</div>
+							<div className='rounded-md bg-hs-cream/40 px-3 py-2'>
+								<p className='text-hs-deep-green'>정량성과</p>
+								<p className='font-semibold text-black'>{job.weightQuantitativeAchievement}</p>
+							</div>
+							<div className='rounded-md bg-hs-cream/40 px-3 py-2'>
+								<p className='text-hs-deep-green'>문서품질</p>
+								<p className='font-semibold text-black'>{job.weightDocumentQuality}</p>
+							</div>
+						</div>
 					</Link>
 				))}
+
+				{!isFetching && content.length === 0 && (
+					<div className='rounded-xl border border-hs-cream bg-white p-10 text-center text-sm text-black/60 shadow-sm'>
+						표시할 공고가 없습니다.
+					</div>
+				)}
 			</div>
 		</section>
 	)
