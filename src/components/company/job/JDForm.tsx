@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { Button } from '../../common/Button'
 import { Input } from '../../common/Input'
 import { Select } from '../../common/Select'
@@ -57,9 +58,14 @@ export const JDForm = () => {
 				</div>
 			</div>
 
-			<div className='flex items-center justify-end gap-2'>
-				<Button variant='secondary'>임시 저장</Button>
-				<Button>JD 저장</Button>
+			<div className='flex items-center justify-between gap-2'>
+				<Link to='/company-main' className='text-sm font-medium text-hs-deep-green'>
+					이전 단계
+				</Link>
+				<div className='flex items-center gap-2'>
+					<Button variant='secondary'>임시 저장</Button>
+					<Button>JD 저장</Button>
+				</div>
 			</div>
 		</form>
 	)

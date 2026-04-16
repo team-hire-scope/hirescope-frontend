@@ -11,7 +11,12 @@ export const MyPageSidebar = () => {
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
 
-	const isActiveMenu = (to: string) => pathname === to || pathname.startsWith(`${to}/`)
+	const isActiveMenu = (to: string) => {
+		if (to === '/com-mypage/jobs') {
+			return pathname === to || pathname.startsWith(`${to}/`) || pathname === '/jobs/create'
+		}
+		return pathname === to || pathname.startsWith(`${to}/`)
+	}
 
 	return (
 		<aside className='lg:sticky lg:top-28 w-full lg:w-80 shrink-0'>
