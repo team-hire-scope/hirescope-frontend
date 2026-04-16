@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
+import { Sparkles, Building2 } from 'lucide-react'
 import { JobFilterBar } from '@/components/job/JobFilterBar'
 import { PublicJobCard } from '@/components/job/PublicJobCard'
 
-// 직무 카테고리 정의
 const CATEGORIES = [
 	{ id: 'all', label: '전체' },
 	{ id: 'frontend', label: '프론트엔드' },
@@ -13,7 +13,6 @@ const CATEGORIES = [
 	{ id: 'data', label: '데이터' },
 ]
 
-// 샘플 공고 데이터
 const MOCK_JOBS = [
 	{
 		id: '1',
@@ -72,13 +71,10 @@ export default function JobListPage() {
 	const [selectedCategory, setSelectedCategory] = useState('all')
 	const [searchQuery, setSearchQuery] = useState('')
 
-	// 지원하기 핸들러
 	const handleApply = (id: string) => {
-		// AI 분석 결과 페이지로 이동 (분석 프로세스 시뮬레이션 시작)
 		navigate(`/analysis/result/${id}`)
 	}
 
-	// 필터링 로직
 	const filteredJobs = MOCK_JOBS.filter(job => {
 		const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory
 		const matchesSearch =
@@ -88,48 +84,79 @@ export default function JobListPage() {
 	})
 
 	return (
-		<div className='w-full max-w-7xl mx-auto space-y-12 pb-20'>
-			{/* 상단 헤더 섹션 */}
-			<div className='text-center space-y-4 pt-12'>
-				<h1 className='text-4xl font-black text-hs-deep-green tracking-tight'>
-					나에게 딱 맞는 <span className='text-hs-yellow underline underline-offset-8'>커리어</span>를 찾아보세요
-				</h1>
-				<p className='text-lg text-slate-500 font-medium'>
-					하이어스코프의 AI 분석으로 합격 확률이 높은 공고를 추천해 드립니다.
-				</p>
-			</div>
+		<div className='w-full max-w-7xl mx-auto pb-24'>
+			{/* 히어로 섹션 */}
+			<div className='relative overflow-hidden rounded-[40px] bg-hs-deep-green mx-6 mt-8 px-10 py-14 mb-12'>
+				{/* 배경 장식 */}
+				<div className='absolute top-0 right-0 w-96 h-96 bg-hs-yellow/5 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none' />
+				<div className='absolute bottom-0 left-20 w-64 h-64 bg-white/3 rounded-full translate-y-1/2 pointer-events-none' />
 
-			{/* 검색 및 필터 영역 */}
-			<JobFilterBar
-				categories={CATEGORIES}
-				selectedCategory={selectedCategory}
-				onSelectCategory={setSelectedCategory}
-				searchQuery={searchQuery}
-				onSearchChange={setSearchQuery}
-			/>
-
-			{/* 공고 리스트 영역 */}
-			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-				{filteredJobs.map(job => (
-					<PublicJobCard key={job.id} {...job} onApply={handleApply} />
-				))}
-			</div>
-
-			{/* 검색 결과 없을 때 */}
-			{filteredJobs.length === 0 && (
-				<div className='text-center py-40 bg-white rounded-[40px] border-2 border-dashed border-hs-yellow/10'>
-					<p className='text-xl font-bold text-slate-300'>검색 결과와 일치하는 공고가 없습니다.</p>
-					<button
-						onClick={() => {
-							setSearchQuery('')
-							setSelectedCategory('all')
-						}}
-						className='mt-4 text-hs-yellow font-bold underline underline-offset-4'
-					>
-						필터 초기화하기
-					</button>
+				<div className='relative z-10'>
+					<div className='inline-flex items-center gap-2 bg-hs-yellow/15 text-hs-yellow text-sm font-bold px-4 py-2 rounded-full mb-5'>
+						<Sparkles size={14} />
+						AI 기반 채용 매칭
+					</div>
+					<h1 className='text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-3'>
+						나에게 딱 맞는 <span className='text-hs-yellow'>커리어</span>를 찾아보세요
+					</h1>
+					<p className='text-white/50 text-base font-medium'>AI 분석으로 합격 확률이 높은 공고를 추천해 드립니다.</p>
 				</div>
-			)}
+			</div>
+
+			<div className='px-6'>
+				{/* 검색 및 필터 */}
+				<JobFilterBar
+					categories={CATEGORIES}
+					selectedCategory={selectedCategory}
+					onSelectCategory={setSelectedCategory}
+					searchQuery={searchQuery}
+					onSearchChange={setSearchQuery}
+				/>
+
+				{/* 결과 카운트 */}
+				<div className='flex items-center justify-between mb-8'>
+					<p className='text-slate-500 font-medium'>
+						<span className='text-hs-deep-green font-black text-lg'>{filteredJobs.length}</span>개의 공고
+					</p>
+					{(searchQuery || selectedCategory !== 'all') && (
+						<button
+							onClick={() => {
+								setSearchQuery('')
+								setSelectedCategory('all')
+							}}
+							className='text-sm text-slate-400 font-bold hover:text-hs-deep-green transition-colors underline underline-offset-4'
+						>
+							필터 초기화
+						</button>
+					)}
+				</div>
+
+				{/* 공고 그리드 */}
+				{filteredJobs.length > 0 ? (
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+						{filteredJobs.map(job => (
+							<PublicJobCard key={job.id} {...job} onApply={handleApply} />
+						))}
+					</div>
+				) : (
+					<div className='text-center py-32 bg-white rounded-[40px] border-2 border-dashed border-hs-yellow/10'>
+						<div className='w-16 h-16 bg-hs-cream rounded-3xl flex items-center justify-center mx-auto mb-4'>
+							<Building2 size={28} className='text-hs-deep-green/30' />
+						</div>
+						<p className='text-xl font-black text-slate-300'>검색 결과가 없습니다</p>
+						<p className='text-slate-400 font-medium mt-1 text-sm'>다른 키워드나 카테고리로 시도해보세요</p>
+						<button
+							onClick={() => {
+								setSearchQuery('')
+								setSelectedCategory('all')
+							}}
+							className='mt-6 px-6 py-3 bg-hs-deep-green text-white font-bold rounded-full text-sm hover:bg-hs-deep-green/90 transition-colors'
+						>
+							전체 공고 보기
+						</button>
+					</div>
+				)}
+			</div>
 		</div>
 	)
 }
