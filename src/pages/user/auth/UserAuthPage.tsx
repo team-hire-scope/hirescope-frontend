@@ -1,49 +1,72 @@
-import { type FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
+import { useLogin } from '@/hooks/user/useLogin'
+import { isAxiosError } from 'axios'
 
-const USER_AUTH_KEY = 'userAuthName'
+const schema = z.object({
+	email: z.string().min(1, '이메일을 입력해주세요').email('올바른 이메일 형식이 아닙니다'),
+	password: z.string().min(1, '비밀번호를 입력해주세요'),
+})
+
+type FormValues = z.infer<typeof schema>
 
 const UserAuthPage = () => {
-	const navigate = useNavigate()
-	const [userName, setUserName] = useState('')
-	const [password, setPassword] = useState('')
+	const { mutate: loginMutate, isPending } = useLogin()
 
-	const handleLogin = (event: FormEvent) => {
-		event.preventDefault()
-		if (!userName.trim() || !password.trim()) return
-		window.localStorage.setItem(USER_AUTH_KEY, JSON.stringify(userName.trim()))
-		// 같은 탭에서의 상태 업데이트를 위해 storage 이벤트 강제 발생
-		window.dispatchEvent(new Event('storage'))
-		// replace: true를 사용하여 뒤로가기 방지
-		navigate('/applicant-main', { replace: true })
+	const {
+		register,
+		handleSubmit,
+		setError,
+		formState: { errors },
+	} = useForm<FormValues>({
+		resolver: zodResolver(schema),
+	})
+
+	const onSubmit = (values: FormValues) => {
+		loginMutate(values, {
+			onError: err => {
+				const message =
+					isAxiosError(err) && err.response?.data?.message
+						? err.response.data.message
+						: '이메일 또는 비밀번호를 확인해주세요'
+				setError('root', { message })
+			},
+		})
 	}
 
 	return (
 		<div className='mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-4xl items-center justify-center'>
 			<div className='mx-auto w-full max-w-md rounded-xl border border-hs-cream bg-white p-6 shadow-sm'>
 				<h2 className='mb-1 text-xl font-semibold text-hs-deep-green'>지원자 로그인</h2>
-				<p className='mb-6 text-sm text-black'>이름과 비밀번호로 빠르게 로그인하세요.</p>
-				<form className='space-y-4' onSubmit={handleLogin}>
+				<p className='mb-6 text-sm text-slate-500'>이메일과 비밀번호로 로그인하세요.</p>
+
+				<form className='space-y-4' onSubmit={handleSubmit(onSubmit)}>
 					<Input
-						id='user-name'
-						label='이름'
-						type='text'
-						placeholder='홍길동'
-						value={userName}
-						onChange={event => setUserName(event.target.value)}
+						id='email'
+						label='이메일'
+						type='email'
+						placeholder='hello@hirescope.kr'
+						error={errors.email?.message}
+						{...register('email')}
 					/>
 					<Input
 						id='password'
 						label='비밀번호'
 						type='password'
-						placeholder='********'
-						value={password}
-						onChange={event => setPassword(event.target.value)}
+						placeholder='비밀번호를 입력하세요'
+						error={errors.password?.message}
+						{...register('password')}
 					/>
-					<Button type='submit' className='w-full'>
-						로그인
+
+					{errors.root && (
+						<p className='rounded-lg bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600'>{errors.root.message}</p>
+					)}
+
+					<Button type='submit' className='w-full' disabled={isPending}>
+						{isPending ? '로그인 중...' : '로그인'}
 					</Button>
 				</form>
 			</div>
