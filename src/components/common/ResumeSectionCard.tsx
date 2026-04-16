@@ -5,11 +5,19 @@ interface ResumeSectionCardProps {
 	title: string
 	children: ReactNode
 	className?: string
+	titleClassName?: string
 	onAdd?: () => void
 	addLabel?: string
 }
 
-export const ResumeSectionCard = ({ title, children, className, onAdd, addLabel = '추가하기' }: ResumeSectionCardProps) => {
+export const ResumeSectionCard = ({
+	title,
+	children,
+	className,
+	titleClassName,
+	onAdd,
+	addLabel = '추가하기',
+}: ResumeSectionCardProps) => {
 	return (
 		<section
 			className={cn(
@@ -22,7 +30,7 @@ export const ResumeSectionCard = ({ title, children, className, onAdd, addLabel 
 
 			<div className='mb-8 flex items-end justify-between border-b border-hs-yellow/20 pb-5'>
 				<div>
-					<h3 className='text-2xl font-extrabold tracking-tight text-hs-deep-green'>{title}</h3>
+					<h3 className={cn('text-2xl font-extrabold tracking-tight text-hs-deep-green', titleClassName)}>{title}</h3>
 					<div className='mt-1.5 h-1.5 w-10 rounded-full bg-hs-yellow/40' />
 				</div>
 				{onAdd && (
