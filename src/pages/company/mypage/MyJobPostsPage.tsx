@@ -50,19 +50,30 @@ const MyJobPostsPage = () => {
 
 			<div className='space-y-3'>
 				{content.map(job => (
-					<Link
+					<div
 						key={job.id}
-						to={`/com-mypage/jobs/${job.id}`}
-						className='block rounded-xl border border-hs-cream bg-white p-4 shadow-sm transition hover:border-hs-yellow'
+						className='rounded-xl border border-hs-cream bg-white p-4 shadow-sm transition hover:border-hs-yellow'
 					>
-						<div className='mb-3 flex items-start justify-between gap-3'>
-							<div>
-								<h3 className='text-base font-semibold text-black'>{job.jobTitle}</h3>
+						<div className='mb-3 flex flex-wrap items-start justify-between gap-3'>
+							<div className='min-w-0 flex-1'>
+								<Link
+									to={`/jobs/${job.id}`}
+									className='text-base font-semibold text-black hover:text-hs-deep-green'
+								>
+									{job.jobTitle}
+								</Link>
 								<p className='mt-1 text-sm text-black'>{job.companyName}</p>
 							</div>
-							<div className='text-right text-sm text-black'>
-								<p>등록일 {formatDate(job.createdAt)}</p>
-								<p className='mt-1 text-black/60'>수정일 {formatDate(job.updatedAt)}</p>
+							<div className='flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center'>
+								<div className='text-right text-sm text-black'>
+									<p>등록일 {formatDate(job.createdAt)}</p>
+									<p className='mt-1 text-black/60'>수정일 {formatDate(job.updatedAt)}</p>
+								</div>
+								<Link to={`/jobs/${job.id}/edit`}>
+									<Button variant='secondary' size='sm'>
+										글 수정하기
+									</Button>
+								</Link>
 							</div>
 						</div>
 
@@ -95,7 +106,15 @@ const MyJobPostsPage = () => {
 								<p className='font-semibold text-black'>{job.weightDocumentQuality}</p>
 							</div>
 						</div>
-					</Link>
+
+						<div className='mt-4 flex flex-wrap gap-2'>
+							<Link to={`/com-mypage/jobs/${job.id}`}>
+								<Button variant='ghost' size='sm'>
+									지원자 관리
+								</Button>
+							</Link>
+						</div>
+					</div>
 				))}
 
 				{!isFetching && content.length === 0 && (

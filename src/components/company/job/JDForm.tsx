@@ -1,11 +1,15 @@
 import { type FormEvent, useMemo, useState } from 'react'
 import { isAxiosError } from 'axios'
 import { Link, useNavigate } from 'react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '../../common/Button'
 import { Input } from '../../common/Input'
 import { Select } from '../../common/Select'
 import { Textarea } from '../../common/Textarea'
-import { useCreateJob } from '../../../hooks/company/useJobMutations'
+import { useCreateJob, useUpdateJob } from '../../../hooks/company/useJobMutations'
+import { jobDetailQueryKey } from '../../../hooks/company/useJobDetail'
+import { jobPostsQueryKey } from '../../../hooks/company/useJobPosts'
+import type { JobPost } from '../../../types/job'
 
 const EMPLOYMENT_OPTIONS = [
 	{ value: 'full-time', label: '정규직' },
@@ -19,23 +23,68 @@ const EXPERIENCE_OPTIONS = [
 	{ value: 'senior', label: '시니어(8년 이상)' },
 ]
 
-export const JDForm = () => {
+type FormState = {
+	companyName: string
+	jobTitle: string
+	employmentType: string
+	experienceLevel: string
+	hiringCount: string
+	jobDescription: string
+	requiredSkills: string
+	preferredQualifications: string
+	weightJobFit: string
+	weightCareerConsistency: string
+	weightSkillMatch: string
+	weightQuantitativeAchievement: string
+	weightDocumentQuality: string
+}
+
+const emptyForm = (): FormState => ({
+	companyName: '',
+	jobTitle: '',
+	employmentType: '',
+	experienceLevel: '',
+	hiringCount: '',
+	jobDescription: '',
+	requiredSkills: '',
+	preferredQualifications: '',
+	weightJobFit: '30',
+	weightCareerConsistency: '20',
+	weightSkillMatch: '25',
+	weightQuantitativeAchievement: '15',
+	weightDocumentQuality: '10',
+})
+
+const formFromJob = (job: JobPost): FormState => ({
+	companyName: job.companyName,
+	jobTitle: job.jobTitle,
+	employmentType: '',
+	experienceLevel: '',
+	hiringCount: '',
+	jobDescription: job.jobDescription,
+	requiredSkills: job.requiredSkills,
+	preferredQualifications: job.preferredQualifications,
+	weightJobFit: String(job.weightJobFit),
+	weightCareerConsistency: String(job.weightCareerConsistency),
+	weightSkillMatch: String(job.weightSkillMatch),
+	weightQuantitativeAchievement: String(job.weightQuantitativeAchievement),
+	weightDocumentQuality: String(job.weightDocumentQuality),
+})
+
+interface JDFormProps {
+	editJobId?: string
+	initialJob?: JobPost
+}
+
+export const JDForm = ({ editJobId, initialJob }: JDFormProps) => {
 	const navigate = useNavigate()
+	const queryClient = useQueryClient()
 	const createJobMutation = useCreateJob()
+	const updateJobMutation = useUpdateJob()
+	const isEdit = Boolean(editJobId)
+
 	const [errorMessage, setErrorMessage] = useState('')
-	const [form, setForm] = useState({
-		jobTitle: '',
-		employmentType: '',
-		experienceLevel: '',
-		hiringCount: '',
-		jobDescription: '',
-		requiredSkills: '',
-		weightJobFit: '30',
-		weightCareerConsistency: '20',
-		weightSkillMatch: '25',
-		weightQuantitativeAchievement: '15',
-		weightDocumentQuality: '10',
-	})
+	const [form, setForm] = useState<FormState>(() => (initialJob ? formFromJob(initialJob) : emptyForm()))
 
 	const totalWeight = useMemo(() => {
 		const values = [
@@ -54,7 +103,7 @@ export const JDForm = () => {
 		form.weightSkillMatch,
 	])
 
-	const updateField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
+	const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
 		setForm(prev => ({ ...prev, [key]: value }))
 	}
 
@@ -68,26 +117,18 @@ export const JDForm = () => {
 		}
 	}
 
-	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-		event.preventDefault()
-		setErrorMessage('')
+	const buildPayload = () => {
+		const companyName = isEdit ? form.companyName.trim() : getCompanyName()
+		const preferredQualifications = isEdit
+			? form.preferredQualifications.trim()
+			: `고용형태: ${form.employmentType || '-'} / 경력레벨: ${form.experienceLevel || '-'} / 채용인원: ${form.hiringCount || '-'}`
 
-		if (!form.jobTitle.trim() || !form.jobDescription.trim()) {
-			setErrorMessage('직무명과 JD 내용을 입력해주세요.')
-			return
-		}
-
-		if (totalWeight !== 100) {
-			setErrorMessage('5개 가중치 합계는 100이어야 합니다.')
-			return
-		}
-
-		const payload = {
-			companyName: getCompanyName(),
+		return {
+			companyName,
 			jobTitle: form.jobTitle.trim(),
 			jobDescription: form.jobDescription.trim(),
 			requiredSkills: form.requiredSkills.trim(),
-			preferredQualifications: `고용형태: ${form.employmentType || '-'} / 경력레벨: ${form.experienceLevel || '-'} / 채용인원: ${form.hiringCount || '-'}`,
+			preferredQualifications,
 			weightJobFit: Number(form.weightJobFit || 0),
 			weightCareerConsistency: Number(form.weightCareerConsistency || 0),
 			weightSkillMatch: Number(form.weightSkillMatch || 0),
@@ -100,21 +141,79 @@ export const JDForm = () => {
 			weightDocumentQualityOrDefault: 0,
 			totalWeight,
 		}
-
-		createJobMutation.mutate(payload, {
-			onSuccess: () => navigate('/com-mypage/jobs'),
-			onError: error => {
-				const message =
-					isAxiosError(error) && error.response?.data?.message
-						? String(error.response.data.message)
-						: '채용 공고 등록에 실패했습니다.'
-				setErrorMessage(message)
-			},
-		})
 	}
+
+	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault()
+		setErrorMessage('')
+
+		if (!form.jobTitle.trim() || !form.jobDescription.trim()) {
+			setErrorMessage('직무명과 JD 내용을 입력해주세요.')
+			return
+		}
+
+		if (isEdit && !form.companyName.trim()) {
+			setErrorMessage('회사명을 입력해주세요.')
+			return
+		}
+
+		if (totalWeight !== 100) {
+			setErrorMessage('5개 가중치 합계는 100이어야 합니다.')
+			return
+		}
+
+		const payload = buildPayload()
+
+		const onSuccess = () => {
+			void queryClient.invalidateQueries({ queryKey: jobPostsQueryKey({ page: 0, size: 10 }) })
+			if (isEdit && editJobId) {
+				void queryClient.invalidateQueries({ queryKey: jobDetailQueryKey(editJobId) })
+				navigate(`/jobs/${editJobId}`)
+			} else {
+				navigate('/com-mypage/jobs')
+			}
+		}
+
+		const onMutationError = (err: unknown) => {
+			const message =
+				isAxiosError(err) && err.response?.data?.message
+					? String(err.response.data.message)
+					: isEdit
+						? '채용 공고 수정에 실패했습니다.'
+						: '채용 공고 등록에 실패했습니다.'
+			setErrorMessage(message)
+		}
+
+		if (isEdit && editJobId) {
+			updateJobMutation.mutate(
+				{ id: editJobId, payload },
+				{
+					onSuccess,
+					onError: onMutationError,
+				}
+			)
+		} else {
+			createJobMutation.mutate(payload, {
+				onSuccess,
+				onError: onMutationError,
+			})
+		}
+	}
+
+	const isPending = createJobMutation.isPending || updateJobMutation.isPending
 
 	return (
 		<form className='space-y-5' onSubmit={handleSubmit}>
+			{isEdit && (
+				<Input
+					id='company-name'
+					label='회사명'
+					placeholder='회사명'
+					value={form.companyName}
+					onChange={event => updateField('companyName', event.target.value)}
+				/>
+			)}
+
 			<div className='grid grid-cols-2 gap-4'>
 				<Input
 					id='job-title'
@@ -168,6 +267,16 @@ export const JDForm = () => {
 				value={form.requiredSkills}
 				onChange={event => updateField('requiredSkills', event.target.value)}
 			/>
+
+			{isEdit && (
+				<Textarea
+					id='preferred-qualifications'
+					label='우대 사항'
+					placeholder='우대 사항을 입력하세요.'
+					value={form.preferredQualifications}
+					onChange={event => updateField('preferredQualifications', event.target.value)}
+				/>
+			)}
 
 			<div className='space-y-3 rounded-lg border border-hs-cream bg-hs-cream/30 p-4'>
 				<h4 className='text-sm font-semibold text-hs-deep-green'>5대 평가 기준 가중치 설정(%) - 합계 {totalWeight}</h4>
@@ -223,15 +332,18 @@ export const JDForm = () => {
 			{errorMessage && <p className='rounded-lg bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600'>{errorMessage}</p>}
 
 			<div className='flex items-center justify-between gap-2'>
-				<Link to='/company-main' className='text-sm font-medium text-hs-deep-green'>
+				<Link
+					to={isEdit && editJobId ? `/jobs/${editJobId}` : '/company-main'}
+					className='text-sm font-medium text-hs-deep-green'
+				>
 					이전 단계
 				</Link>
 				<div className='flex items-center gap-2'>
-					<Button variant='secondary' disabled={createJobMutation.isPending}>
+					<Button variant='secondary' type='button' disabled={isPending}>
 						임시 저장
 					</Button>
-					<Button type='submit' disabled={createJobMutation.isPending}>
-						{createJobMutation.isPending ? '저장 중...' : 'JD 저장'}
+					<Button type='submit' disabled={isPending}>
+						{isPending ? '저장 중...' : isEdit ? '수정 저장' : 'JD 저장'}
 					</Button>
 				</div>
 			</div>

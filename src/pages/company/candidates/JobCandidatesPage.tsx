@@ -113,7 +113,7 @@ const JobCandidatesPage = () => {
 				onKeywordChange={setKeyword}
 			/>
 			<div className='flex items-center justify-between'>
-				<Link to={jobId ? `/com-mypage/jobs/${jobId}` : '/com-mypage/jobs'}>
+				<Link to={jobId ? `/jobs/${jobId}` : '/com-mypage/jobs'}>
 					<Button variant='secondary'>공고글 보러가기</Button>
 				</Link>
 				<SortDropdown value={sortBy} onChange={setSortBy} />

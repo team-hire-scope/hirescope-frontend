@@ -1,4 +1,5 @@
 import { ArrowUpRight } from 'lucide-react'
+import { Link } from 'react-router'
 import { Button } from '@/components/common/Button'
 import type { JobListItem } from '@/types/job'
 
@@ -51,7 +52,9 @@ export const PublicJobCard = ({ job, onApply }: PublicJobCardProps) => {
 
 				{/* 공고 제목 */}
 				<h3 className='text-lg font-black text-hs-deep-green leading-snug group-hover:text-hs-deep-green/80 transition-colors'>
-					{job.jobTitle}
+					<Link to={`/jobs/${job.id}`} className='hover:underline'>
+						{job.jobTitle}
+					</Link>
 				</h3>
 
 				{/* 필수 스킬 태그 */}

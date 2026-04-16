@@ -8,6 +8,11 @@ export const getJobPosts = async (params?: { page?: number; size?: number }): Pr
 	return response.data.data
 }
 
+export const getJobById = async (id: string | number): Promise<JobPost> => {
+	const response = await api.get<ApiResponse<JobPost>>(`/api/jobs/${id}`)
+	return response.data.data
+}
+
 export const getJobApplicants = async (
 	jobId: string | number,
 	params?: { status?: JobApplicantRow['status']; page?: number; size?: number }
