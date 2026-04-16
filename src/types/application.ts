@@ -1,4 +1,15 @@
-export type ApplicationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED'
+export type ApplicationStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'ACCEPTED' | 'REJECTED'
+
+export interface MyApplicationItem {
+	applicationId: number
+	jobPostingId: number
+	jobTitle: string
+	companyName: string
+	resumeId: number
+	resumeTitle: string
+	status: ApplicationStatus
+	appliedAt: string
+}
 
 export interface RequestApplyDto {
 	resumeId: number

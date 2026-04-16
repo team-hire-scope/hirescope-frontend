@@ -1,12 +1,26 @@
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router'
-import { Briefcase, Sparkles, ChevronRight, FileText, TrendingUp, Bell, PenLine, CheckCircle2, Clock } from 'lucide-react'
+import {
+	Briefcase,
+	Sparkles,
+	ChevronRight,
+	FileText,
+	TrendingUp,
+	Bell,
+	PenLine,
+	CheckCircle2,
+	Clock,
+	Building2,
+	Loader2,
+} from 'lucide-react'
 import { Button } from '@/components/common/Button'
 import { PublicJobCard } from '@/components/job/PublicJobCard'
 import { cn } from '@/utils/cn'
 import { useMyResume, type ResumeDisplayData } from '@/hooks/user/useMyResume'
 import { useJobList } from '@/hooks/user/useJobList'
 import { useApply } from '@/hooks/user/useApply'
+import { useMyApplications } from '@/hooks/user/useMyApplications'
+import type { MyApplicationItem } from '@/types/application'
 
 const STATS = [
 	{ label: '지원한 공고', value: '5', unit: '건', icon: <Briefcase size={18} /> },
@@ -18,7 +32,9 @@ export default function ApplicantMainPage() {
 	const { isLoading, hasResume, resume } = useMyResume()
 	const { data: jobData, isLoading: isJobsLoading } = useJobList(0, 3)
 	const { mutate: apply } = useApply()
+	const { data: appData, isLoading: isAppsLoading } = useMyApplications(5)
 	const recommendedJobs = jobData?.content ?? []
+	const myApplications = appData?.content ?? []
 
 	const handleApply = (jobPostingId: number) => {
 		if (!resume) {
@@ -133,31 +149,60 @@ export default function ApplicantMainPage() {
 					)}
 				</section>
 
-				{/* 최근 분석 리포트 */}
+				{/* 최근 지원 내역 */}
 				<section className='space-y-6'>
-					<div>
-						<h2 className='text-xl font-black text-hs-deep-green flex items-center gap-2.5'>
-							<Sparkles size={20} className='text-hs-yellow' />
-							최근 분석 리포트
-						</h2>
-						<p className='text-sm text-slate-400 mt-0.5 font-medium'>AI가 분석한 나의 이력서 결과</p>
-					</div>
-
-					<div className='bg-white rounded-2xl border border-slate-100 shadow-sm'>
-						<div className='flex flex-col items-center justify-center py-20 px-6 text-center'>
-							<div className='w-16 h-16 bg-hs-yellow/10 rounded-2xl flex items-center justify-center mb-4'>
-								<Sparkles size={28} className='text-hs-yellow' />
-							</div>
-							<p className='text-slate-700 font-bold text-base mb-1'>아직 분석 결과가 없어요</p>
-							<p className='text-slate-400 text-sm mb-6'>채용 공고에 지원하면 AI가 자동으로 분석을 시작해요</p>
-							<Button
-								onClick={() => navigate('/jobs')}
-								className='px-6 py-2.5 font-bold rounded-xl shadow-sm shadow-hs-yellow/20'
-							>
-								공고 보러 가기
-							</Button>
+					<div className='flex items-center justify-between'>
+						<div>
+							<h2 className='text-xl font-black text-hs-deep-green flex items-center gap-2.5'>
+								<Sparkles size={20} className='text-hs-yellow' />
+								최근 지원 내역
+							</h2>
+							<p className='text-sm text-slate-400 mt-0.5 font-medium'>내가 지원한 공고와 분석 현황</p>
 						</div>
 					</div>
+
+					{isAppsLoading ? (
+						<div className='bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-50'>
+							{Array.from({ length: 3 }).map((_, i) => (
+								<div key={i} className='flex items-center gap-4 px-6 py-5 animate-pulse'>
+									<div className='w-10 h-10 rounded-2xl bg-slate-100 shrink-0' />
+									<div className='flex-1 space-y-2'>
+										<div className='h-4 w-1/3 rounded bg-slate-100' />
+										<div className='h-3 w-1/4 rounded bg-slate-100' />
+									</div>
+									<div className='w-16 h-6 rounded-full bg-slate-100' />
+								</div>
+							))}
+						</div>
+					) : myApplications.length > 0 ? (
+						<div className='bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden'>
+							<div className='divide-y divide-slate-50'>
+								{myApplications.map(app => (
+									<ApplicationRow
+										key={app.applicationId}
+										app={app}
+										onClick={() => navigate(`/analysis/result/${app.applicationId}`)}
+									/>
+								))}
+							</div>
+						</div>
+					) : (
+						<div className='bg-white rounded-2xl border border-slate-100 shadow-sm'>
+							<div className='flex flex-col items-center justify-center py-16 px-6 text-center'>
+								<div className='w-14 h-14 bg-hs-yellow/10 rounded-2xl flex items-center justify-center mb-4'>
+									<Sparkles size={24} className='text-hs-yellow' />
+								</div>
+								<p className='text-slate-700 font-bold text-base mb-1'>아직 지원한 공고가 없어요</p>
+								<p className='text-slate-400 text-sm mb-5'>공고에 지원하면 AI가 자동으로 분석을 시작해요</p>
+								<Button
+									onClick={() => navigate('/jobs')}
+									className='px-6 py-2.5 font-bold rounded-xl shadow-sm shadow-hs-yellow/20'
+								>
+									공고 보러 가기
+								</Button>
+							</div>
+						</div>
+					)}
 				</section>
 			</div>
 		</div>
@@ -227,6 +272,68 @@ function ActionCard({
 				{action}
 			</div>
 		</div>
+	)
+}
+
+/* ── 지원 내역 행 ── */
+const STATUS_CONFIG: Record<string, { label: string; className: string; icon: ReactNode }> = {
+	PENDING: {
+		label: '분석 대기',
+		className: 'bg-slate-100 text-slate-500',
+		icon: <Clock size={11} />,
+	},
+	PROCESSING: {
+		label: '분석 중',
+		className: 'bg-hs-yellow/15 text-hs-deep-green',
+		icon: <Loader2 size={11} className='animate-spin' />,
+	},
+	COMPLETED: {
+		label: '분석 완료',
+		className: 'bg-emerald-50 text-emerald-600',
+		icon: <CheckCircle2 size={11} />,
+	},
+}
+
+const formatAppliedAt = (iso: string) => {
+	const d = new Date(iso)
+	return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+}
+
+function ApplicationRow({ app, onClick }: { app: MyApplicationItem; onClick: () => void }) {
+	const initial = app.companyName.charAt(0)
+	const config = STATUS_CONFIG[app.status] ?? { label: app.status, className: 'bg-slate-100 text-slate-500', icon: null }
+
+	return (
+		<button
+			onClick={onClick}
+			className='w-full flex items-center gap-4 px-6 py-5 hover:bg-slate-50/70 transition-colors text-left group'
+		>
+			<div className='w-10 h-10 bg-hs-deep-green rounded-2xl flex items-center justify-center shrink-0'>
+				<span className='text-hs-yellow font-black text-sm'>{initial}</span>
+			</div>
+			<div className='flex-1 min-w-0'>
+				<p className='font-bold text-hs-deep-green text-sm truncate'>{app.jobTitle}</p>
+				<p className='text-xs text-slate-400 font-medium flex items-center gap-1.5 mt-0.5'>
+					<Building2 size={11} />
+					{app.companyName}
+					<span className='text-slate-200'>·</span>
+					{formatAppliedAt(app.appliedAt)}
+				</p>
+			</div>
+			<span
+				className={cn(
+					'inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full shrink-0',
+					config.className
+				)}
+			>
+				{config.icon}
+				{config.label}
+			</span>
+			<ChevronRight
+				size={15}
+				className='text-slate-300 group-hover:text-hs-deep-green group-hover:translate-x-0.5 transition-all shrink-0'
+			/>
+		</button>
 	)
 }
 
