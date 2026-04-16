@@ -139,10 +139,6 @@ const MyJobApplicantsDashboardPage = () => {
 						prev.map(candidate => (candidate.id === candidateId ? { ...candidate, status: nextStatus } : candidate))
 					)
 				}}
-				getDetailPath={candidate => {
-					if (!jobId) return `/candidates/${candidate.id}`
-					return `/com-mypage/jobs/${jobId}/${candidate.id}`
-				}}
 			/>
 		</section>
 	)

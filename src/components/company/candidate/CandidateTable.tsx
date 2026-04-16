@@ -1,4 +1,3 @@
-import { Link } from 'react-router'
 import { Button } from '../../common/Button'
 import { StatusSelect } from '../common/statusSelect'
 import { useState } from 'react'
@@ -20,18 +19,14 @@ export interface CandidateRow {
 interface CandidateTableProps {
 	candidates: CandidateRow[]
 	onNameClick?: (candidate: CandidateRow) => void
-	getDetailPath?: (candidate: CandidateRow) => string
 	onStatusChange?: (candidateId: string, status: CandidateRow['status']) => void
 }
 
-export const CandidateTable = ({ candidates, onNameClick, getDetailPath, onStatusChange }: CandidateTableProps) => {
+export const CandidateTable = ({ candidates, onNameClick, onStatusChange }: CandidateTableProps) => {
 	const [statusOverrideById, setStatusOverrideById] = useState<Record<string, CandidateRow['status']>>({})
 
 	// 요약 리포트 컬럼은 데이터에 summary가 있을 때만 노출
 	const hasSummary = candidates.some(candidate => Boolean(candidate.summary))
-
-	const defaultGetDetailPath = (candidate: CandidateRow) => `/candidates/${candidate.id}`
-	const detailPath = getDetailPath ?? defaultGetDetailPath
 
 	return (
 		<div className='w-full overflow-visible rounded-xl border border-hs-cream bg-white shadow-sm'>
@@ -40,10 +35,9 @@ export const CandidateTable = ({ candidates, onNameClick, getDetailPath, onStatu
 					<tr>
 						<th className='px-4 py-3'>이름</th>
 						<th className='px-4 py-3'>점수</th>
-						<th className='px-4 py-3'>지원일</th>
-						{hasSummary && <th className='px-4 py-3'>요약 리포트</th>}
 						<th className='px-4 py-3'>상태</th>
-						<th className='px-4 py-3'>리포트</th>
+						{hasSummary && <th className='px-4 py-3'>요약 리포트</th>}
+						<th className='px-4 py-3'>지원일</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -74,8 +68,6 @@ export const CandidateTable = ({ candidates, onNameClick, getDetailPath, onStatu
 									<span>문서품질 {candidate.docScore}</span>
 								</div>
 							</td>
-							<td className='px-4 py-3 text-black'>{candidate.appliedAt}</td>
-							{hasSummary && <td className='px-4 py-3 text-black'>{candidate.summary}</td>}
 							<td className='px-4 py-3'>
 								<StatusSelect
 									value={statusOverrideById[candidate.id] ?? candidate.status}
@@ -93,14 +85,8 @@ export const CandidateTable = ({ candidates, onNameClick, getDetailPath, onStatu
 									className='min-w-40'
 								/>
 							</td>
-							<td className='px-4 py-3'>
-								<Link
-									to={detailPath(candidate)}
-									className='text-sm font-medium text-hs-deep-green hover:underline'
-								>
-									상세 보기
-								</Link>
-							</td>
+							{hasSummary && <td className='px-4 py-3 text-black'>{candidate.summary}</td>}
+							<td className='px-4 py-3 text-black'>{candidate.appliedAt}</td>
 						</tr>
 					))}
 				</tbody>
