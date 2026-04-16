@@ -64,7 +64,7 @@ export interface Resume {
 
 // ─── API 요청 타입 ────────────────────────────────────────────────────────────
 
-type Proficiency = 'HIGH' | 'MID' | 'LOW'
+type Proficiency = 'HIGH' | 'MEDIUM' | 'LOW'
 
 export interface RequestCareerDto {
 	companyName: string
