@@ -14,6 +14,7 @@ import {
 	Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/common/Button'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { PublicJobCard } from '@/components/job/PublicJobCard'
 import { cn } from '@/utils/cn'
 import { useMyResume, type ResumeDisplayData } from '@/hooks/user/useMyResume'
@@ -22,16 +23,11 @@ import { useApply } from '@/hooks/user/useApply'
 import { useMyApplications } from '@/hooks/user/useMyApplications'
 import type { MyApplicationItem } from '@/types/application'
 
-const STATS = [
-	{ label: '지원한 공고', value: '5', unit: '건', icon: <Briefcase size={18} /> },
-	{ label: 'AI 분석 완료', value: '3', unit: '회', icon: <Sparkles size={18} /> },
-]
-
 export default function ApplicantMainPage() {
 	const navigate = useNavigate()
 	const { isLoading, hasResume, resume } = useMyResume()
 	const { data: jobData, isLoading: isJobsLoading } = useJobList(0, 3)
-	const { mutate: apply } = useApply()
+	const { mutate: apply, isDuplicateError, clearDuplicateError } = useApply()
 	const { data: appData, isLoading: isAppsLoading } = useMyApplications(5)
 	const recommendedJobs = jobData?.content ?? []
 	const myApplications = appData?.content ?? []
@@ -58,7 +54,9 @@ export default function ApplicantMainPage() {
 						<div className='space-y-3'>
 							<div className='inline-flex items-center gap-2 bg-hs-yellow/15 text-hs-yellow text-sm font-bold px-3 py-1.5 rounded-full border border-hs-yellow/20'>
 								<Bell size={13} />
-								오늘 새로운 채용 공고 12건이 올라왔어요
+								{isJobsLoading
+									? '채용 공고를 불러오는 중...'
+									: `현재 채용 공고 ${jobData?.totalElements ?? 0}건이 있어요`}
 							</div>
 							<h1 className='text-3xl lg:text-4xl font-black text-white tracking-tight'>
 								반가워요! 👋
@@ -69,24 +67,6 @@ export default function ApplicantMainPage() {
 								하이어스코프 AI가 당신의 이력서를 분석하고 합격 가능성을 높여드릴게요.
 							</p>
 						</div>
-
-						<div className='flex gap-4'>
-							{STATS.map(stat => (
-								<div
-									key={stat.label}
-									className='bg-white/8 border border-white/10 rounded-2xl px-5 py-4 text-center backdrop-blur-sm min-w-[90px]'
-								>
-									<div className='text-hs-yellow/70 flex justify-center mb-1'>{stat.icon}</div>
-									<div className='text-2xl font-black text-white'>
-										{stat.value}
-										<span className='text-sm font-bold text-slate-400 ml-0.5'>{stat.unit}</span>
-									</div>
-									<div className='text-xs text-slate-400 font-medium mt-0.5 whitespace-nowrap'>
-										{stat.label}
-									</div>
-								</div>
-							))}
-						</div>
 					</div>
 				</div>
 			</div>
@@ -94,7 +74,7 @@ export default function ApplicantMainPage() {
 			<div className='container mx-auto max-w-7xl px-6 lg:px-12 py-10 space-y-12'>
 				{/* 퀵 액션 + 이력서 카드 */}
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
-					<JobExploreCard onExplore={() => navigate('/jobs')} />
+					<JobExploreCard onExplore={() => navigate('/jobs')} totalJobs={jobData?.totalElements ?? 0} />
 					<ResumeCard
 						isLoading={isLoading}
 						hasResume={hasResume}
@@ -205,6 +185,15 @@ export default function ApplicantMainPage() {
 					)}
 				</section>
 			</div>
+
+			<ConfirmDialog
+				open={isDuplicateError}
+				title='이미 지원한 공고예요'
+				description='같은 공고에는 중복으로 지원할 수 없습니다.'
+				confirmLabel='확인'
+				confirmVariant='primary'
+				onConfirm={clearDuplicateError}
+			/>
 		</div>
 	)
 }
@@ -338,7 +327,7 @@ function ApplicationRow({ app, onClick }: { app: MyApplicationItem; onClick: () 
 }
 
 /* ── 채용 공고 탐색 카드 ── */
-function JobExploreCard({ onExplore }: { onExplore: () => void }) {
+function JobExploreCard({ onExplore, totalJobs }: { onExplore: () => void; totalJobs: number }) {
 	return (
 		<ActionCard
 			icon={<Briefcase size={22} />}
@@ -346,7 +335,7 @@ function JobExploreCard({ onExplore }: { onExplore: () => void }) {
 			title='채용 공고 탐색'
 			badge={
 				<span className='text-xs font-extrabold text-hs-yellow bg-hs-yellow/10 px-2.5 py-1 rounded-full border border-hs-yellow/20'>
-					오늘 신규 12건
+					총 {totalJobs}건
 				</span>
 			}
 			description='공고에 지원하면 AI가 자동으로 이력서를 분석하고 예상 질문을 만들어드려요.'

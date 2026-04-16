@@ -47,9 +47,7 @@ export default function AnalysisResultPage() {
 					))}
 				</div>
 
-				<p className='text-xs text-slate-400 font-medium'>
-					분석이 완료되면 자동으로 결과가 표시됩니다. (30초마다 자동 갱신)
-				</p>
+				<p className='text-xs text-slate-400 font-medium'>분석이 완료되면 자동으로 결과가 표시됩니다.</p>
 
 				<Button variant='secondary' className='rounded-full gap-2' onClick={() => navigate('/jobs')}>
 					<ArrowLeft size={16} />

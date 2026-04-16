@@ -7,7 +7,7 @@ import { CareerSection } from '@/components/user/resume-edit/CareerSection'
 import { SkillSection } from '@/components/user/resume-edit/SkillSection'
 import { ProjectSection } from '@/components/user/resume-edit/ProjectSection'
 import { CertificationSection } from '@/components/user/resume-edit/CertificationSection'
-import { Button } from '@/components/common/Button'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 
 export default function ResumeEditPage() {
 	const navigate = useNavigate()
@@ -126,29 +126,21 @@ export default function ResumeEditPage() {
 			</div>
 
 			{/* 미저장 이탈 방지 다이얼로그 */}
-			{blocker.state === 'blocked' && (
-				<div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4'>
-					<div className='bg-white rounded-2xl p-7 max-w-sm w-full shadow-2xl'>
-						<div className='w-12 h-12 bg-hs-yellow/15 rounded-2xl flex items-center justify-center mb-4'>
-							<span className='text-2xl'>⚠️</span>
-						</div>
-						<h3 className='text-lg font-black text-hs-deep-green mb-2'>저장하지 않은 변경사항</h3>
-						<p className='text-sm text-slate-500 leading-relaxed mb-6'>
-							수정한 내용이 저장되지 않습니다.
-							<br />
-							페이지를 나가시겠습니까?
-						</p>
-						<div className='flex gap-3'>
-							<Button variant='secondary' className='flex-1 py-3' onClick={() => blocker.reset()}>
-								계속 편집
-							</Button>
-							<Button variant='danger' className='flex-1 py-3' onClick={() => blocker.proceed()}>
-								나가기
-							</Button>
-						</div>
-					</div>
-				</div>
-			)}
+			<ConfirmDialog
+				open={blocker.state === 'blocked'}
+				title='저장하지 않은 변경사항'
+				description={
+					<>
+						수정한 내용이 저장되지 않습니다.
+						<br />
+						페이지를 나가시겠습니까?
+					</>
+				}
+				cancelLabel='계속 편집'
+				confirmLabel='나가기'
+				onCancel={() => blocker.state === 'blocked' && blocker.reset()}
+				onConfirm={() => blocker.state === 'blocked' && blocker.proceed()}
+			/>
 		</div>
 	)
 }

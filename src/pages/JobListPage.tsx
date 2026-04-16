@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { Sparkles, Building2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { JobFilterBar } from '@/components/job/JobFilterBar'
 import { PublicJobCard } from '@/components/job/PublicJobCard'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { useJobList } from '@/hooks/user/useJobList'
 import { useMyResume } from '@/hooks/user/useMyResume'
 import { useApply } from '@/hooks/user/useApply'
@@ -16,7 +17,7 @@ export default function JobListPage() {
 
 	const { data, isLoading } = useJobList(page, PAGE_SIZE)
 	const { resume } = useMyResume()
-	const { mutate: apply } = useApply()
+	const { mutate: apply, isDuplicateError, clearDuplicateError } = useApply()
 
 	const jobs = data?.content ?? []
 	const totalPages = data?.totalPages ?? 0
@@ -166,6 +167,15 @@ export default function JobListPage() {
 					</div>
 				)}
 			</div>
+
+			<ConfirmDialog
+				open={isDuplicateError}
+				title='이미 지원한 공고예요'
+				description='같은 공고에는 중복으로 지원할 수 없습니다.'
+				confirmLabel='확인'
+				confirmVariant='primary'
+				onConfirm={clearDuplicateError}
+			/>
 		</div>
 	)
 }
