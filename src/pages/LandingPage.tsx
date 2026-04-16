@@ -2,9 +2,7 @@ import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Badge } from '../components/common/Badge'
 import { Button } from '../components/common/Button'
-
-const COMPANY_AUTH_KEY = 'companyAuthName'
-const USER_AUTH_KEY = 'userAuthName'
+import { useAuthContext } from '../contexts/AuthContext'
 
 const strengths = [
 	{
@@ -23,17 +21,15 @@ const strengths = [
 
 const LandingPage = () => {
 	const navigate = useNavigate()
+	const { user } = useAuthContext()
 
 	useEffect(() => {
-		const companyAuth = window.localStorage.getItem(COMPANY_AUTH_KEY)
-		const userAuth = window.localStorage.getItem(USER_AUTH_KEY)
-
-		if (companyAuth) {
+		if (user?.role === 'HR') {
 			navigate('/company-main', { replace: true })
-		} else if (userAuth) {
+		} else if (user?.role === 'APPLICANT') {
 			navigate('/applicant-main', { replace: true })
 		}
-	}, [navigate])
+	}, [user, navigate])
 
 	return (
 		<section className='w-full space-y-8'>

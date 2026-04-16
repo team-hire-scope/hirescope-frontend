@@ -1,53 +1,28 @@
-import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router'
 import { cn } from '../../utils/cn'
+import { useAuthContext } from '../../contexts/AuthContext'
 
 const navItems = [{ to: '/jobs', label: '모집공고', end: true }]
 
-const COMPANY_AUTH_KEY = 'companyAuthName'
-const USER_AUTH_KEY = 'userAuthName'
-
 export const TopNav = () => {
 	const navigate = useNavigate()
-	const [userType, setUserType] = useState<'company' | 'user' | null>(null)
-	const [displayName, setDisplayName] = useState('')
-
-	useEffect(() => {
-		const checkAuth = () => {
-			const companyAuth = window.localStorage.getItem(COMPANY_AUTH_KEY)
-			const userAuth = window.localStorage.getItem(USER_AUTH_KEY)
-
-			if (companyAuth) {
-				setUserType('company')
-				setDisplayName(JSON.parse(companyAuth))
-			} else if (userAuth) {
-				setUserType('user')
-				setDisplayName(JSON.parse(userAuth))
-			} else {
-				setUserType(null)
-			}
-		}
-
-		checkAuth()
-		window.addEventListener('storage', checkAuth)
-		return () => window.removeEventListener('storage', checkAuth)
-	}, [])
+	const { user, setUser } = useAuthContext()
 
 	const handleLogout = () => {
-		window.localStorage.removeItem(COMPANY_AUTH_KEY)
-		window.localStorage.removeItem(USER_AUTH_KEY)
-		setUserType(null)
+		setUser(null)
 		navigate('/', { replace: true })
 	}
 
-	const showNav = userType !== 'user'
+	const isCompany = user?.role === 'HR'
+	const isApplicant = user?.role === 'APPLICANT'
 
 	return (
 		<header className='grid h-16 w-full grid-cols-[1fr_auto_1fr] items-center border-b border-hs-cream bg-hs-yellow px-6'>
 			<Link to='/' className='text-lg font-bold text-hs-deep-green'>
 				HireScope
 			</Link>
-			{showNav ? (
+
+			{!isApplicant ? (
 				<nav className='flex items-center gap-2'>
 					{navItems.map(item => (
 						<NavLink
@@ -70,10 +45,11 @@ export const TopNav = () => {
 			) : (
 				<div />
 			)}
+
 			<div className='justify-self-end flex items-center gap-4'>
-				{userType === 'company' && (
+				{isCompany && (
 					<div className='flex items-center gap-3 text-sm font-medium'>
-						<span className='text-hs-deep-green'>{displayName}님 안녕하세요.</span>
+						<span className='text-hs-deep-green'>{user.name}님 안녕하세요.</span>
 						<Link to='com-mypage/company' className='text-black hover:text-hs-deep-green'>
 							마이페이지
 						</Link>
@@ -82,9 +58,9 @@ export const TopNav = () => {
 						</button>
 					</div>
 				)}
-				{userType === 'user' && (
+				{isApplicant && (
 					<div className='flex items-center gap-3 text-sm font-medium'>
-						<span className='text-hs-deep-green'>{displayName}님 안녕하세요.</span>
+						<span className='text-hs-deep-green'>{user.name}님 안녕하세요.</span>
 						<Link to='/applicant-main' className='text-black hover:text-hs-deep-green'>
 							대시보드
 						</Link>
@@ -93,7 +69,7 @@ export const TopNav = () => {
 						</button>
 					</div>
 				)}
-				{userType === null && (
+				{!user && (
 					<Link to='/auth/select' className='text-sm font-medium text-black hover:text-hs-deep-green'>
 						로그인
 					</Link>
