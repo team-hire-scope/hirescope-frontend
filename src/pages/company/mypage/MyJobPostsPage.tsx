@@ -69,8 +69,8 @@ const MyJobPostsPage = () => {
 						<p className='text-sm leading-6 text-black'>{job.jobDescription}</p>
 
 						<div className='mt-3 flex flex-wrap gap-2'>
-							<Badge className='bg-hs-yellow/30 text-hs-deep-green'>필수 {job.requiredSkills}</Badge>
-							<Badge className='bg-hs-green/20 text-hs-deep-green'>우대 {job.preferredQualifications}</Badge>
+							<Badge className='bg-hs-yellow/30 text-hs-deep-green'>{job.requiredSkills}</Badge>
+							<Badge className='bg-hs-green/20 text-hs-deep-green'>{job.preferredQualifications}</Badge>
 						</div>
 
 						<div className='mt-4 grid grid-cols-2 gap-2 text-sm md:grid-cols-5'>

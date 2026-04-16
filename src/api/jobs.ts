@@ -1,7 +1,7 @@
 import { api } from '../utils/AxiosInstance'
 import type { ApiResponse, PageResponse } from '../types/api'
 import type { JobPost, JobUpsertPayload } from '../types/job'
-import type { JobApplicantRow } from '../types/jobApplicants'
+import type { ApplicationDetail, JobApplicantRow } from '../types/jobApplicants'
 
 export const getJobPosts = async (params?: { page?: number; size?: number }): Promise<PageResponse<JobPost>> => {
 	const response = await api.get<ApiResponse<PageResponse<JobPost>>>('/api/jobs', { params })
@@ -23,5 +23,10 @@ export const createJob = async (payload: JobUpsertPayload): Promise<JobPost> => 
 
 export const updateJob = async (id: string | number, payload: JobUpsertPayload): Promise<JobPost> => {
 	const response = await api.put<ApiResponse<JobPost>>(`/api/jobs/${id}`, payload)
+	return response.data.data
+}
+
+export const getApplicationDetail = async (applicationId: string | number): Promise<ApplicationDetail> => {
+	const response = await api.get<ApiResponse<ApplicationDetail>>(`/api/applications/${applicationId}`)
 	return response.data.data
 }

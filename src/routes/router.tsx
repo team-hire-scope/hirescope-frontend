@@ -76,10 +76,6 @@ const companyAppChildren = [
 		element: <JobCreatePage />,
 	},
 	{
-		path: 'candidates/:candidateId',
-		element: <CandidateDetailPage />,
-	},
-	{
 		path: 'com-mypage',
 		element: <MyPageLayout />,
 		children: [
