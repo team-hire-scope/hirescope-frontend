@@ -37,7 +37,7 @@ export const CandidateTable = ({ candidates, onNameClick }: CandidateTableProps)
 				<thead className='bg-hs-cream text-hs-deep-green'>
 					<tr>
 						<th className='px-4 py-3'>이름</th>
-						<th className='px-4 py-3'>점수</th>
+						<th className='px-4 py-3'>평균 점수</th>
 						<th className='px-4 py-3'>상태</th>
 						{hasSummary && <th className='px-4 py-3'>요약 리포트</th>}
 						<th className='px-4 py-3'>지원일</th>
@@ -62,7 +62,7 @@ export const CandidateTable = ({ candidates, onNameClick }: CandidateTableProps)
 								)}
 							</td>
 							<td className='px-4 py-3 text-black'>
-								<div className='text-sm font-semibold text-black'>총점 {candidate.score}</div>
+								<div className='text-sm font-semibold text-black'>평균 점수 {candidate.score}</div>
 								<div className='mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-black/50'>
 									<span>직무적합 {candidate.fitScore}</span>
 									<span>경력일관 {candidate.careerScore}</span>

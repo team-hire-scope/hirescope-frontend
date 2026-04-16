@@ -68,7 +68,7 @@ const CandidateDetailPage = () => {
 					<h3 className='mb-3 text-base font-semibold text-black'>AI 분석 점수</h3>
 					{data.analysisResult ? (
 						<div className='space-y-2 text-sm text-black'>
-							<p className='text-base font-semibold'>총점 {Math.round(data.analysisResult.totalScore)}</p>
+							<p className='text-base font-semibold'>평균 점수 {Math.round(data.analysisResult.totalScore)}</p>
 							<p>직무 적합도: {Math.round(data.analysisResult.scoreJobFit)}</p>
 							<p>경력 일관성: {Math.round(data.analysisResult.scoreCareerConsistency)}</p>
 							<p>기술 매칭: {Math.round(data.analysisResult.scoreSkillMatch)}</p>
