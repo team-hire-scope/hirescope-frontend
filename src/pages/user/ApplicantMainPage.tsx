@@ -4,6 +4,7 @@ import { Briefcase, Sparkles, ChevronRight, FileText, TrendingUp, Bell, PenLine,
 import { Button } from '@/components/common/Button'
 import { PublicJobCard } from '@/components/job/PublicJobCard'
 import { cn } from '@/utils/cn'
+import { useMyResume, type ResumeDisplayData } from '@/hooks/user/useMyResume'
 
 const RECOMMENDED_JOBS = [
 	{
@@ -40,31 +41,9 @@ const STATS = [
 	{ label: 'AI 분석 완료', value: '3', unit: '회', icon: <Sparkles size={18} /> },
 ]
 
-interface Resume {
-	id: string
-	updatedAt: string
-	completionRate: number
-	sections: { label: string; done: boolean }[]
-}
-
-// 실제 연동 시 API로 교체
-const MY_RESUME: Resume | null = null
-// const MY_RESUME = {
-// 	id: 'resume-1',
-// 	updatedAt: '2024.04.10',
-// 	completionRate: 80,
-// 	sections: [
-// 		{ label: '기본 정보', done: true },
-// 		{ label: '학력', done: true },
-// 		{ label: '경력', done: true },
-// 		{ label: '기술 스택', done: true },
-// 		{ label: '프로젝트', done: false },
-// 		{ label: '자격증', done: false },
-// 	],
-// }
-
 export default function ApplicantMainPage() {
 	const navigate = useNavigate()
+	const { isLoading, hasResume, resume } = useMyResume()
 
 	const handleApply = (id: string) => {
 		navigate(`/analysis/result/${id}`)
@@ -121,11 +100,13 @@ export default function ApplicantMainPage() {
 				{/* 퀵 액션 + 이력서 카드 */}
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
 					<JobExploreCard onExplore={() => navigate('/jobs')} />
-					{MY_RESUME ? (
-						<ResumeStatusCard resume={MY_RESUME} onEdit={() => navigate(`/resumes/${MY_RESUME.id}/edit`)} />
-					) : (
-						<ResumeEmptyCard onCreate={() => navigate('/resumes/new')} />
-					)}
+					<ResumeCard
+						isLoading={isLoading}
+						hasResume={hasResume}
+						resume={resume}
+						onEdit={() => resume && navigate(`/resumes/${resume.id}/edit`)}
+						onCreate={() => navigate('/resumes/new')}
+					/>
 				</div>
 
 				{/* 실시간 인기 채용 공고 */}
@@ -272,6 +253,37 @@ function JobExploreCard({ onExplore }: { onExplore: () => void }) {
 	)
 }
 
+/* ── 이력서 카드 분기 (로딩 / 없음 / 있음) ── */
+interface ResumeCardProps {
+	isLoading: boolean
+	hasResume: boolean | null
+	resume: ResumeDisplayData | null
+	onEdit: () => void
+	onCreate: () => void
+}
+
+function ResumeCard({ isLoading, hasResume, resume, onEdit, onCreate }: ResumeCardProps) {
+	if (isLoading || hasResume === null) return <ResumeSkeletonCard />
+	if (!hasResume || !resume) return <ResumeEmptyCard onCreate={onCreate} />
+	return <ResumeStatusCard resume={resume} onEdit={onEdit} />
+}
+
+/* ── 이력서 로딩 스켈레톤 ── */
+function ResumeSkeletonCard() {
+	return (
+		<div className='bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col gap-4 animate-pulse'>
+			<div className='flex items-start justify-between'>
+				<div className='w-11 h-11 rounded-xl bg-slate-100' />
+				<div className='w-16 h-6 rounded-full bg-slate-100' />
+			</div>
+			<div className='h-5 w-24 rounded bg-slate-100' />
+			<div className='h-3 w-32 rounded bg-slate-100' />
+			<div className='flex-1 rounded-xl bg-slate-50 h-24' />
+			<div className='h-12 rounded-xl bg-slate-100' />
+		</div>
+	)
+}
+
 /* ── 이력서 없음 카드 ── */
 function ResumeEmptyCard({ onCreate }: { onCreate: () => void }) {
 	return (
@@ -299,7 +311,7 @@ function ResumeEmptyCard({ onCreate }: { onCreate: () => void }) {
 }
 
 /* ── 이력서 있음 카드 ── */
-function ResumeStatusCard({ resume, onEdit }: { resume: Resume; onEdit: () => void }) {
+function ResumeStatusCard({ resume, onEdit }: { resume: ResumeDisplayData; onEdit: () => void }) {
 	const done = resume.sections.filter(s => s.done).length
 	const total = resume.sections.length
 

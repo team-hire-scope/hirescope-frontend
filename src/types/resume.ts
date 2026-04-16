@@ -1,31 +1,33 @@
+// ─── 폼 내부 타입 (기존 컴포넌트에서 사용) ───────────────────────────────────
+
 export interface Education {
 	id?: string
 	resumeId?: string
 	schoolName: string
 	major: string
 	degree: string
-	startDate: string // 입학일
-	endDate?: string // 졸업일
+	startDate: string
+	endDate?: string
 }
 
 export interface Career {
 	id?: string
 	resumeId?: string
 	companyName: string
-	jobTitle: string // 직무
-	position: string // 직급
+	jobTitle: string
+	position: string
 	startDate: string
 	endDate?: string
-	jobDescription: string // 담당 업무 설명
-	quantitativeResults: string // 정량적 성과
+	jobDescription: string
+	quantitativeResults: string
 }
 
 export interface Skill {
 	id?: string
 	resumeId?: string
 	skillName: string
-	proficiency: 'high' | 'mid' | 'low' // 숙련도 (상/중/하)
-	durationMonths: number // 사용 기간 (개월 수)
+	proficiency: 'high' | 'mid' | 'low'
+	durationMonths: number
 }
 
 export interface Project {
@@ -33,9 +35,9 @@ export interface Project {
 	resumeId?: string
 	projectName: string
 	role: string
-	duration: string // 기간 (예: 2023.01 - 2023.03)
-	techStack: string // 사용 기술 (문자열 또는 콤마로 구분된 리스트)
-	achievementsDescription: string // 성과 설명
+	duration: string
+	techStack: string
+	achievementsDescription: string
 }
 
 export interface Certification {
@@ -50,7 +52,7 @@ export interface Resume {
 	id?: string
 	userId: string
 	title: string
-	summary: string // 자기소개 요약
+	summary: string
 	educations: Education[]
 	careers: Career[]
 	skills: Skill[]
@@ -59,6 +61,117 @@ export interface Resume {
 	createdAt?: string
 	updatedAt?: string
 }
+
+// ─── API 요청 타입 ────────────────────────────────────────────────────────────
+
+type Proficiency = 'HIGH' | 'MID' | 'LOW'
+
+export interface RequestCareerDto {
+	companyName: string
+	position: string
+	rank: string
+	startDate: string
+	endDate: string
+	description: string
+	quantitativeAchievement: string
+}
+
+export interface RequestEducationDto {
+	schoolName: string
+	major: string
+	degree: string
+	enrollmentDate: string
+	graduationDate: string
+}
+
+export interface RequestSkillDto {
+	skillName: string
+	proficiency: Proficiency
+	monthsOfExperience: number
+}
+
+export interface RequestProjectDto {
+	projectName: string
+	role: string
+	period: string
+	technologies: string
+	achievement: string
+}
+
+export interface RequestCertificationDto {
+	certificationName: string
+	issuingOrganization: string
+	acquiredDate: string
+}
+
+export interface RequestCreateResumeDto {
+	title: string
+	summary: string
+	careers: RequestCareerDto[]
+	educations: RequestEducationDto[]
+	skills: RequestSkillDto[]
+	projects: RequestProjectDto[]
+	certifications: RequestCertificationDto[]
+}
+
+// ─── API 응답 타입 ────────────────────────────────────────────────────────────
+
+export interface ResponseCareerDto extends RequestCareerDto {
+	id: number
+}
+
+export interface ResponseEducationDto extends RequestEducationDto {
+	id: number
+}
+
+export interface ResponseSkillDto extends RequestSkillDto {
+	id: number
+}
+
+export interface ResponseProjectDto extends RequestProjectDto {
+	id: number
+}
+
+export interface ResponseCertificationDto extends RequestCertificationDto {
+	id: number
+}
+
+export interface ResponseResumeDto {
+	id: number
+	userId: number
+	title: string
+	summary: string
+	createdAt: string
+	updatedAt: string
+	careers: ResponseCareerDto[]
+	educations: ResponseEducationDto[]
+	skills: ResponseSkillDto[]
+	projects: ResponseProjectDto[]
+	certifications: ResponseCertificationDto[]
+}
+
+// ─── 이력서 목록 조회 응답 ────────────────────────────────────────────────────
+
+export interface ResumeListItem {
+	id: number
+	title: string
+	summary: string
+	createdAt: string
+}
+
+export interface ResumeListPage {
+	totalElements: number
+	totalPages: number
+	first: boolean
+	last: boolean
+	size: number
+	content: ResumeListItem[]
+	number: number
+	numberOfElements: number
+	empty: boolean
+}
+
+// ─── 기타 ─────────────────────────────────────────────────────────────────────
 
 export interface AIAnalysisRequest {
 	resumeId?: string

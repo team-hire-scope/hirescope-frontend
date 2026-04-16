@@ -1,81 +1,74 @@
+import { useEffect } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { useNavigate } from 'react-router'
+import { useQuery } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
 import type { Resume } from '@/types/resume'
+import { getResumeDetail } from '@/api/resume'
+import { mapResponseToForm } from '@/utils/resumeMappers'
+import { useCreateResume } from '@/hooks/user/useCreateResume'
+import { useUpdateResume } from '@/hooks/user/useUpdateResume'
 
-export const useResumeForm = () => {
-	const navigate = useNavigate()
+const EMPTY_DEFAULTS: Resume = {
+	userId: '',
+	title: '',
+	summary: '',
+	educations: [{ schoolName: '', major: '', degree: '', startDate: '', endDate: '' }],
+	careers: [],
+	skills: [],
+	projects: [],
+	certifications: [],
+}
+
+export const useResumeForm = (resumeId?: string) => {
+	const isEditMode = !!resumeId
+	const numericId = resumeId ? Number(resumeId) : null
+
+	const { mutate: createResume, isPending: isCreating } = useCreateResume()
+	const { mutate: updateResume, isPending: isUpdating } = useUpdateResume()
+	const isPending = isCreating || isUpdating
+
+	const { data: resumeDetail, isLoading: isLoadingDetail } = useQuery({
+		queryKey: ['resumes', numericId],
+		queryFn: () => getResumeDetail(numericId!),
+		enabled: isEditMode,
+	})
+
 	const {
 		register,
 		control,
 		handleSubmit,
-		formState: { errors },
-	} = useForm<Resume>({
-		defaultValues: {
-			title: '',
-			summary: '',
-			educations: [{ schoolName: '', major: '', degree: '', startDate: '', endDate: '' }],
-			careers: [],
-			skills: [],
-			projects: [],
-			certifications: [],
-		},
-	})
+		setError,
+		reset,
+		formState: { errors, isDirty },
+	} = useForm<Resume>({ defaultValues: EMPTY_DEFAULTS })
 
-	// 학력 섹션 필드 배열
-	const {
-		fields: eduFields,
-		append: appendEdu,
-		remove: removeEdu,
-	} = useFieldArray({
-		control,
-		name: 'educations',
-	})
+	// 편집 모드: 데이터 로드 후 폼 초기화
+	useEffect(() => {
+		if (resumeDetail) {
+			reset(mapResponseToForm(resumeDetail))
+		}
+	}, [resumeDetail, reset])
 
-	// 경력 섹션 필드 배열
-	const {
-		fields: careerFields,
-		append: appendCareer,
-		remove: removeCareer,
-	} = useFieldArray({
-		control,
-		name: 'careers',
-	})
-
-	// 기술 스택 섹션 필드 배열
-	const {
-		fields: skillFields,
-		append: appendSkill,
-		remove: removeSkill,
-	} = useFieldArray({
-		control,
-		name: 'skills',
-	})
-
-	// 프로젝트 섹션 필드 배열
-	const {
-		fields: projectFields,
-		append: appendProject,
-		remove: removeProject,
-	} = useFieldArray({
-		control,
-		name: 'projects',
-	})
-
-	// 자격증 섹션 필드 배열
-	const {
-		fields: certFields,
-		append: appendCert,
-		remove: removeCert,
-	} = useFieldArray({
-		control,
-		name: 'certifications',
-	})
+	const { fields: eduFields, append: appendEdu, remove: removeEdu } = useFieldArray({ control, name: 'educations' })
+	const { fields: careerFields, append: appendCareer, remove: removeCareer } = useFieldArray({ control, name: 'careers' })
+	const { fields: skillFields, append: appendSkill, remove: removeSkill } = useFieldArray({ control, name: 'skills' })
+	const { fields: projectFields, append: appendProject, remove: removeProject } = useFieldArray({ control, name: 'projects' })
+	const { fields: certFields, append: appendCert, remove: removeCert } = useFieldArray({ control, name: 'certifications' })
 
 	const onSubmit = (data: Resume) => {
-		console.log('Resume Data:', data)
-		// TODO: API 연결 시 저장 로직 구현
-		alert('이력서가 저장되었습니다.')
-		navigate('/resumes')
+		const onError = (err: unknown) => {
+			const message =
+				isAxiosError(err) && err.response?.data?.message
+					? err.response.data.message
+					: '이력서 저장에 실패했습니다. 다시 시도해주세요.'
+			setError('root', { message })
+		}
+
+		if (isEditMode && numericId) {
+			updateResume({ id: numericId, form: data }, { onError })
+		} else {
+			createResume(data, { onError })
+		}
 	}
 
 	return {
@@ -83,6 +76,10 @@ export const useResumeForm = () => {
 		control,
 		handleSubmit,
 		errors,
+		isPending,
+		isDirty,
+		isLoadingDetail,
+		isEditMode,
 		onSubmit,
 		eduFields,
 		appendEdu,
@@ -99,6 +96,5 @@ export const useResumeForm = () => {
 		certFields,
 		appendCert,
 		removeCert,
-		navigate,
 	}
 }

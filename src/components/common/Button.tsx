@@ -27,7 +27,7 @@ export const Button = ({ className, variant = 'primary', size = 'md', type = 'bu
 		<button
 			type={type}
 			className={cn(
-				'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+				'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40 disabled:bg-slate-200 disabled:text-slate-400 disabled:border-transparent disabled:shadow-none',
 				variantStyles[variant],
 				sizeStyles[size],
 				className
