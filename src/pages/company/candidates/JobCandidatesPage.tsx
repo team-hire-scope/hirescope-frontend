@@ -70,7 +70,7 @@ const initialCandidates: CandidateRow[] = [
 
 const JobCandidatesPage = () => {
 	const { jobId } = useParams()
-	const [candidates, setCandidates] = useState<CandidateRow[]>(initialCandidates)
+	const [candidates] = useState<CandidateRow[]>(initialCandidates)
 	const [status, setStatus] = useState<'all' | '검토중' | '서류 통과' | '면접 예정' | '탈락'>('all')
 	const [scoreBand, setScoreBand] = useState<'all' | '90+' | '80-89' | 'under-80'>('all')
 	const [keyword, setKeyword] = useState('')
@@ -118,15 +118,7 @@ const JobCandidatesPage = () => {
 				</Link>
 				<SortDropdown value={sortBy} onChange={setSortBy} />
 			</div>
-			<CandidateTable
-				candidates={visibleCandidates}
-				onStatusChange={(candidateId, nextStatus) => {
-					setStatus(prev => (prev === 'all' ? prev : 'all'))
-					setCandidates(prev =>
-						prev.map(candidate => (candidate.id === candidateId ? { ...candidate, status: nextStatus } : candidate))
-					)
-				}}
-			/>
+			<CandidateTable candidates={visibleCandidates} />
 		</section>
 	)
 }
