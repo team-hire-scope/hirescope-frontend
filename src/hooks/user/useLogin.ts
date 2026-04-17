@@ -12,7 +12,7 @@ export const useLogin = () => {
 		mutationFn: (payload: RequestLoginDto) => login(payload),
 		onSuccess: data => {
 			setUser(data)
-			navigate('/applicant-main', { replace: true })
+			navigate(data.role === 'HR' ? '/company-main' : '/applicant-main', { replace: true })
 		},
 	})
 }
